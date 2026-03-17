@@ -240,3 +240,100 @@ select sum(cast(Salary as int)) as TotalSum from Employees
 --min palga saaja
 select min(Salary) from Employees
 --
+
+--17.02.2026
+
+--teeme left join päringu
+
+select Location, sum(cast(Salary as int)) as TotalSalary
+from Employees
+left join Department
+on Employees.DepartmentId = Department.Id
+group by Location --ühe kuu palgafond linnade lõikes
+
+--teeme veeru nimega City Employees tabelisse
+--nvarchar 30
+alter table Employees
+add City nvarchar(30)
+
+select * from Employees
+
+--peale selecti tulevad veergude nimed
+select City, GenderId, sum(cast(Salary as int)) as TotalSalary 
+--tabelist nimega Employees ja mis on grupitatud City ja Gender järgi
+from Employees group by City, GenderId
+
+--oleks vaja, et linnad oleksid tähestikulises järjekorras
+select City, GenderId, sum(cast(Salary as int)) as TotalSalary 
+from Employees group by City, GenderId 
+order by City
+
+--order by järjestab Linnad tähestikulises järjekorras
+--aga kui on nullid, siis need tulevad kõige ette
+
+--loeb ära mitu rida on tabelis employees
+--* asemel võib panna ka veeru nime, 
+--aga siis loeb ainult selle veeru väärtused, mis ei ole nullid
+select count(*) from Employees
+
+--mitu töötajat on soo ja linna kaupa
+select GenderId, City, sum(cast(Salary as int)) as TotalSum,
+count(id) as [Total Employee(s)]
+from Employees 
+group by City, GenderId
+
+--kuvab ainult kõik mehed linnade kaupa
+
+select GenderId, City, sum(cast(Salary as int)) as TotalSum,
+count(id) as [Total Employee(s)]
+from Employees where GenderId = 'Male'
+group by City, GenderId
+
+--kuvab ainult kõik naised linnade kaupa
+
+select GenderId, City, sum(cast(Salary as int)) as TotalSum,
+count(id) as [Total Employee(s)]
+from Employees where GenderId = 'Female'
+group by City, GenderId
+
+--sama tulemus aga kasutage having klausit
+select GenderId, City, sum(cast(Salary as int)) as TotalSum,
+count(id) as [Total Employee(s)]
+from Employees 
+group by City, GenderId
+having GenderId = 'Male'
+
+select GenderId, City, sum(cast(Salary as int)) as TotalSum,
+count(id) as [Total Employee(s)]
+from Employees 
+group by City, GenderId
+having GenderId = 'Female'
+
+--näitab meile ainult need töötajad, kellel on palga summa üle 4000
+select Name, City, GenderId, sum(cast(Salary as int)) as TotalSalary,
+count(id) as [Total Employee(s)]
+from Employees
+group by Name, GenderId, City, Salary
+having sum(cast(Salary as int)) > 4000
+
+--loome tabeli, milles hakatakse automaatselt nummerdama Id-d
+create table Test1
+(
+id int identity(1,1) primary key,
+Value nvarchar(30)
+)
+
+insert into Test1 values('X')
+select * from Test1
+
+-- kustutame veeru nimega City Employees tabelist
+alter table Employees
+drop column City
+
+--inner join
+--kuvab neid, kellel on DepartmentName all olemas väärtus
+select Name, GenderId, Salary, DepartmentName
+from Employees
+inner join Department
+on Employees.DepartmentId = Department.id
+
