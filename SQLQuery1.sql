@@ -438,4 +438,7 @@ on CA.CustomerID = C.CustomerID
 
 --teha päring kus kasutate ProductModel ja Product tableit,
 --et näha, millised tooted on millise mudeliga seotud
-select ProductModelID, ProductID
+select PM.Name as ProductModel, PName as Product
+from SalesLT.Product P
+left join SalesLT.ProductModel PM
+on PM.ProductModelID = P.ProductModelID
