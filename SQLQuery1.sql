@@ -337,3 +337,105 @@ from Employees
 inner join Department
 on Employees.DepartmentId = Department.id
 
+--left join
+--kuvab kõik read Employees tabelis'
+--aga DepartmentName näitab ainult siis, kui on olemas
+--kui DepartmentId on null, siis DepartmentName on nulli
+
+select Name, GenderId, Salary, DepartmentName
+from Employees
+left join Department
+on Employees.DepartmentId = Department.id
+
+--right join
+--kuvab k'ik read Fepartment tabelis,
+--aga Name näitab ainult siis, kui on olemas väärtus DepartmentId-s, mis on sama 
+--mis Department tabelis Id.
+select Name, GenderId, Salary, DepartmentName
+from Employees
+right join Department
+on Employees.DepartmentId = Department.id
+
+--full outer join ja full join on sama asi
+--kuvab kõik read mõlemast reast
+--aga kui ei ole vastet, siis näitab nulli
+select Name, GenderId, Salary, DepartmentName
+from Employees
+full outer join Department
+on Employees.DepartmentId = Department.id
+
+--cross join
+--kuvab küik read mõlemast tabelist, aga ei võta aluseks mingit veergu
+--vaid lihtsalt kombineerib kõik read omavahel
+--kasutatakse harva, aga kui on vaja kombineerida kõiki
+--võimalikke kombinatsioone kahe tabeli vahel, siis võib kasutada cross join
+select Name, GenderId, Salary, DepartmentName
+from Employees
+cross join Department
+where Employees.DepartmentId = Department.id
+
+--päeringu sisu
+select ColumnList
+from LeftTable
+joinType RightTable
+on JoinCondition
+
+select Name, GenderId, Salary, DepartmentName
+from Employees
+inner join Department
+on Department.id = Employees.DepartmentId
+
+--kuidas kuvada ainult need isikud, kellel on DepartmentName NULL
+select Name, GenderId, Salary, DepartmentName
+from Employees
+left join Department
+on Employees.DepartmentId = Employees.DepartmentId
+where Employees.DepartmentId is null
+
+select Name, GenderId, Salary, DepartmentName
+from Employees
+left join Department
+on Employees.DepartmentId = Employees.DepartmentId
+where Employees.Id is null
+
+--kuidas saame department tabelis oleva rea, kus on null
+select Name, GenderId, Salary, DepartmentName
+from Employees
+right join Department
+on Employees.DepartmentId = Department.id
+Where Employees.DepartmentId is null
+
+--full join 
+--kus on vaja kuvada kõik read mõlemast tabelist
+--millel ei ole vastet
+select Name, GenderId, Salary, DepartmentName
+from Employees
+full join Department
+on Employees.DepartmentId = Department.id
+where Employees.DepartmentId is null
+or DepartmentId is null
+
+--tabeli nimetusi muutmine koodiga
+sp_rename 'Employees1', 'Employees'
+
+--kasutame Employees tabeli asemel lühendit E ja M
+--aga enne seda lisame uue veeru nimega ManagerId ja see on int
+alter table Employees
+add ManagerId int
+
+--antud juhul E on Employees tabeli lühend ja M
+--on samuti Employees tabeli lühend, aga me kasutame
+--seda, et näidata, et see on manageri tabel
+select E.Name as Employee, M.Name as Manager
+from Employees E
+left join Employees M
+on E.ManagerId = M.Id
+
+select FirstName, LastName, Phone, AddressId, AddressType
+from SalesLT.CustomerAddress CA --Lühend
+left join SalesLT.Customer C --Lühend
+on CA.CustomerID = C.CustomerID
+
+--teha päring kus kasutate ProductModel ja Product tableit,
+--et näha, millised tooted on millise mudeliga seotud
+select ProductModelID, ProductID
