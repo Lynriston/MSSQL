@@ -1266,3 +1266,123 @@ where Salary > 1000 and Salary < 5000
 go
 set showplan_all off
 go
+
+
+----indeksi tüübid:
+--1. Klastrite olevad
+--2. Mitteklastrite olevad
+--3. Unikaalsed
+--4. Filtreeritud
+--5. XML
+--6. Täistekst
+--7. Ruumiline
+--8. Veerusäilitav
+--9. Veergude indeksid
+--10. Välja arvatud veergudega indeksid
+
+-- Klastris olev indeks määrab ära tabelis oleva füüsilise järjestuse
+--ja selle tulemusel saab tabelis olla ainult üks klastrite olev indeks
+--kui lisad primaalvõtme, siis luuakse automaatselt klastrite olev indeks
+
+create table EmployeeCity
+(
+	Id int primary key,
+	Name nvarchar(25),
+	Salary int,
+	Gender nvarchar(10),
+	City nvarchar(20)
+)
+
+insert into EmployeeCity values (3, 'John', 4500, 'Male', 'New York')
+insert into EmployeeCity values (1, 'Sam', 2500, 'Male', 'London')
+insert into EmployeeCity values (4, 'Sara', 5500, 'Female', 'Tokyo')
+insert into EmployeeCity values (5, 'Todd', 3100, 'Male', 'Toronto')
+insert into EmployeeCity values (2, 'Pam', 6500, 'Male', 'Sydney')
+
+select * from EmployeeCity
+
+--Klastrite olevad indeksid dikteerivad kuidas säilitatud andmete järjestuste tabelis
+--ja seda saab klastrite puhul olla ainult üks
+Create clustered index IX_EmployeeCity_Name
+on EmployeeCity(Name)
+--annab veteate, et tabelis saab olla ainult üks klastris olev index
+--kui soovid, uut indeksit luua, siis kustuta olemasolev
+
+--saame luua ainult ühe klastris oleva indeksi tabeli peale
+--klastris olev indeks in analoogne telefoni nr-le
+--enne seda päringut kustutasime primaalvõtme indeksi ära
+select * from EmployeeCity
+
+--mitte klastris olev indeks
+create nonclustered index IX_EmployeeCity_Name
+on EmployeeCity(Name)
+
+exec sp_helpindex EmployeeCity
+
+select * from EmployeeCity
+
+--erinevused kahe indeksi vahel
+--1. ainult üks klastris olev indeks saab olla tabeli peale,
+--mitte klastris olevaid indekseid võib olla mitu
+--2. klastris olevad indeksid on kiiremad kuna indeks peab
+--tagasi viitma tabelile
+--Juhul, kui selekteeritud veerg ei ole olemas indeksis
+--3. Klastris olev indeks määratleb ära tabeli ridade slavestusjärjestuse
+--ja ei nõua kettal lisa ruumi. Samas mitte klastris olevad indeksid on 
+--salvestatud tabelist eraldi ja nõuab lisa ruumi
+
+create table EmployeeFirstName
+(
+	Id int primary key,
+	FirstName nvarchar(25),
+	LastName nvarchar(25),
+	Salary int,
+	Gender nvarchar(10),
+	City nvarchar(20)
+)
+
+exec sp_helpindex EmployeeFirstName
+
+--sisestame andmed tabelisse
+insert into EmployeeFirstName
+values
+(1, 'Mike', 'Sandoz', 4500, 'Male', 'New York'),
+(1, 'John', 'Menco', 2500, 'Male', 'London')
+
+--kustutame indeksi ära
+drop index EmployeeFirstName.PK__Employee__3214EC07E6B8F0B9
+--kui käivitad ülevalpool oleva koodi, siis tuleb veateade
+--et SQL server kasutab UNIQUE indeksit jõustamaks väärtuste unikaalsust ja 
+-- koodiga Unikaalseid Indekseid ei saa kustutada, aga käsitsi saab
+
+insert into EmployeeFirstName
+values
+(1, 'Mike', 'Sandoz', 4500, 'Male', 'New York'),
+(1, 'John', 'Menco', 2500, 'Male', 'London')
+
+create unique nonclustered index IX_Employee_FirstName_FirstName
+on EmployeeFirstName(FirstName, LastName)
+
+(1, 'Mike', 'Sandoz', 4500, 'Male', 'New York'),
+(1, 'John', 'Menco', 2500, 'Male', 'London')
+
+
+create table EmployeeFirstName
+(
+	Id int primary key,
+	FirstName nvarchar(25),
+	LastName nvarchar(25),
+	Salary int,
+	Gender nvarchar(10),
+	City nvarchar(20)
+)
+
+insert into EmployeeFirstName
+values
+(1, 'Mike', 'Sandoz', 4500, 'Male', 'New York'),
+(1, 'John', 'Menco', 2500, 'Male', 'London')
+
+--lisame uue unikaalse piirangu
+alter table EmployeeFirstName
+add constraint UQ_Employee_FirstName_City
+unique nonclustered(City)
