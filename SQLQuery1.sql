@@ -1104,4 +1104,165 @@ select * from EmployeesWithDates
 --ei saa muuta andmeid multistate table valued funktsioonis,
 --sest see on nagu stored procedure
 
---
+--determnistic vs non-deterministic functions
+select COUNT(*) from EmployeesWithDates
+--kõik tehtemärgid on deterministic, sest nad annavad alati sama tulemuse, kui sisend on sama
+--kui sisend on sama. Selle alla kuuluvad veel sum, avg, min, max, count
+select SQUARE(3)
+
+--non ettemääratud funktsioonid võivad anda erinevaid tulemusi
+select GETDATE() --kuna see annab alati erineva tulemuse, siis on see non-deterministic
+select CURRENT_TIMESTAMP
+select RAND()
+
+--loome funktsiooni
+create function fn_GetNameById(@id int)
+returns nvarchar(20)
+as begin
+	return (select Name from EmployeesWithDates where Id = @id)
+end
+
+--kuidas saab kasutdata fn_GetNameById funktsiooni.
+select dbo.fn_GetNameById(1) as EmployeeName
+--sellega saame näha funktsiooni sisu.
+sp_helptext fn_GetNameById
+
+--muuta funktsiooni fn_GetGameById ja krüpteerida see ära,
+--et keegi teine peale sinu ei saaks seda muuta
+alter function fn_GetNameById(@id int)
+returns nvarchar(20)
+with encryption
+as begin
+	return (select Name from EmployeesWithDates where Id = @id)
+end
+
+--nüüd kui proovime vaadata fn_GetNameById funktsiooni sisu, siis ei näe seda, sest see on krüpteeritud
+sp_helptext fn_GetNameById
+
+create function fn_GetEmployeeNameById(@id int)
+returns nvarchar(20)
+with schemabinding
+as begin
+	return (select Name from EmployeesWithDates where Id = @id)
+end
+--tuleb veatäide
+--Cannot schema bind function 'fn_GetEmployeeNameById' because name 'EmployeesWithDates' is invalid for 
+--schema binding. Names must be in two-part format and an object cannot reference itself.
+
+--nüüd on korras variant.
+create function dbo.fn_GetEmployeeNameById(@id int)
+returns nvarchar(20)
+with schemabinding
+as begin
+	return (select Name from dbo.EmployeesWithDates where Id = @id)
+end
+--mis on schemabinding?
+--schemabinding seob päringus oleva tabeli ära ja ei luba seda muuta
+--mis see annab meile?
+--see annab meile jõudluse eelise, sest SQL Server teab, et
+--see tabel ei muutu veergude osas.
+
+--ei saa tabelit kustutada, kui see on seotud schemabindinguga
+drop table EmployeesWithDates
+
+create function dbo.fn_GetEmployeeNameById123(@id int)
+returns nvarchar(20)
+with encryption,
+schemabinding
+as begin
+return (select Name from dbo.EmployeesWithDates where Id = @id)
+end
+
+--temporary tables
+--need on tabelid, mis on loodud ajutiselt ja kustutatakse automaatselt
+--neid on kahte tüüpi: local temporary tables ja global temporary tables
+--#-ga algavad loacal temporary tables 
+--ja ##-ga algavad global temporary tables
+
+create table #PersonDetails(Id int, Name nvarchar(20))
+--kuhu tabel tekkis?
+insert into #PersonDetails values (1, 'Mike')
+insert into #PersonDetails values (2, 'Max')
+insert into #PersonDetails values (3, 'Uhura')
+go
+select * from #PersonDetails
+
+--saame otsida seda objekti ülesse
+select * from sysobjects
+where Name like '[dbo].[#PersonDetails______________________________________________________________________________________________________000000000004]'
+
+
+--kustutame temp tabeli
+drop table #PersonDetails
+
+--teeme stored procedure, mis loob temp tabeli ja täidab selle andmetega
+create proc spCreateLocalTempTable
+as begin
+create table #PersonDetails(Id int, Name nvarchar(20))
+
+insert into #PersonDetails values (1, 'Mike')
+insert into #PersonDetails values (2, 'Max')
+insert into #PersonDetails values (3, 'Uhura')
+
+select * from #PersonDetails
+end
+
+exec spCreateLocalTempTable
+
+select * from sysobjects
+where Name like '%'
+
+--global table
+create table ##GlobalPersonDetails(Id int, Name nvarchar(20))
+--mis on globaalse ja lokaalse temp tabeli vahe?
+--Lokaalne temp tabel on nähtav ainult selle sessiooni sees, kus see on loodud, 
+--ja kustutatakse automaatselt, kui sessioon lõpeb. 
+--Globaalne temp tabel on nähtav kõigile sessioonidele ja kustutatakse alles siis, 
+--kui kõik sessioonid, mis sellele tabelile viitavad, on lõppenud.
+
+
+--Index
+create table EmployeesWithSalary
+(
+	Id int primary key,
+	Name nvarchar(25),
+	Salary int,
+	Gender nvarchar(10)
+)
+
+insert into EmployeesWithSalary values (1, 'Sam', 2500, 'Male')
+insert into EmployeesWithSalary values (2, 'Pam', 6500, 'Female')
+insert into EmployeesWithSalary values (3, 'John', 4500, 'Male')
+insert into EmployeesWithSalary values (4, 'Sara', 5500, 'Female')
+insert into EmployeesWithSalary values (5, 'Todd', 3100, 'Male')
+
+select * from EmployeesWithSalary
+
+select * from EmployeesWithSalary
+where Salary > 5000 and Salary < 7000
+
+--loome indeksi, mis asetab palga kahanevasse järjestusse.
+create index IX_Employee_Salary
+on EmployeesWithSalary(Salary desc)
+
+create index IX_Employee_Salary123
+on EmployeesWithSalary(Salary)
+where Salary > 4000 and Salary < 7000
+
+--proovige nüüd pärida tabelit EmployeeWithSalary
+-- ja kasutada index-t IX_Employee_Salary
+select * from EmployeesWithSalary with(index(IX_Employee_Salary))
+select * from EmployeesWithSalary with(index(IX_Employee_Salary123))
+
+--indeksi kustutamine
+drop index IX_Employee_Salary123 on EmployeesWithSalary
+drop index EmployeesWithSalary.IX_Employee_Salary
+
+set statistics profile on
+go
+select Name, Salary
+from EmployeesWithSalary
+where Salary > 1000 and Salary < 5000
+go
+set showplan_all off
+go
