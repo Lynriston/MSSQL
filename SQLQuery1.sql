@@ -2027,3 +2027,307 @@ select * from EmployeeCountBy_HR_Admin_Dept
 --töötlemiseks
 
 --Lihtsam testimine: Kuna iga osa on eraldi nimega plokk,
+
+
+--tablei kusutamine
+drop table Employee
+
+create table Employee
+(
+	EmployeeId int primary key,
+	Name nvarchar(30),
+	ManagerId int
+)
+
+select * from Employee
+
+insert into Employee values (1, 'Tom', 2)
+insert into Employee values (2, 'Josh', null)
+insert into Employee values (3, 'Mike', 2)
+insert into Employee values (4, 'John', 3)
+insert into Employee values (5, 'Pam', 1)
+insert into Employee values (6, 'Mary', 3)
+insert into Employee values (7, 'James', 1)
+insert into Employee values (8, 'Sam', 5)
+insert into Employee values (9, 'Simon', 1)
+
+-- üks võimalus on teha seda self joiniga 
+-- kuvada NULL veeru asemel Super Boss
+
+select Emp.Name as [Employee Name],
+ISNULL(Manager.Name, 'Super Boss') as [Manager Name]
+from dbo.Employee Emp
+left join Employee Manager
+on Emp.ManagerId = Manager.EmployeeId
+
+--kasutame CTE
+with EmployeeCTE(Id, Name, ManagerId, [Level])
+as
+(
+	select Employee.EmployeeId, Name, ManagerId, 1
+	from Employee
+	where ManagerId is null
+
+	union all
+
+	select Employee.EmployeeId, Employee.Name,
+	Employee.ManagerId, EmployeeCTE.[Level] + 1
+	from Employee
+	join EmployeeCTE
+	on Employee.ManagerId = EmployeeCTE.Id
+)
+
+select EmpCTE.Name as Employee,
+ISNULL(MgrCTE.Name, 'Super Boss') as [Manager Name],
+EmpCTE.[Level]
+from EmployeeCTE EmpCTE
+left join EmployeeCTE MgrCTE
+on EmpCTE.ManagerId = MgrCTE.Id
+
+-- PIVOT
+create table ProductSales
+(
+	SalesAgent nvarchar(20),
+	SalesCountry nvarchar(20),
+	SalesAmount int
+)
+
+insert into ProductSales values ('Tom', 'UK', 200)
+insert into ProductSales values ('John', 'US', 180)
+insert into ProductSales values ('John', 'UK', 260)
+insert into ProductSales values ('David', 'India', 450)
+insert into ProductSales values ('Tom', 'India', 350)
+insert into ProductSales values ('David', 'US', 200)
+insert into ProductSales values ('Tom', 'US', 130)
+insert into ProductSales values ('John', 'India', 540)
+insert into ProductSales values ('John', 'UK', 120)
+insert into ProductSales values ('David', 'UK', 220)
+insert into ProductSales values ('John', 'UK', 220)
+insert into ProductSales values ('David', 'US', 320)
+insert into ProductSales values ('Tom', 'US', 340)
+insert into ProductSales values ('Tom', 'UK', 660)
+insert into ProductSales values ('John', 'India', 430)
+insert into ProductSales values ('David', 'India', 230)
+insert into ProductSales values ('David', 'India', 280)
+insert into ProductSales values ('Tom', 'UK', 480)
+insert into ProductSales values ('John', 'UK', 360)
+insert into ProductSales values ('David', 'UK', 140)
+
+select SalesCountry, SalesAgent, sum(SalesAmount) as Total
+from ProductSales
+group by SalesCountry, SalesAgent
+order by SalesCountry, SalesAgent
+
+
+-- nüüd tehke päring kus kasutate PIVOT
+select SalesAgent, India, US, UK
+from ProductSales
+pivot
+(
+	sum(SalesAmount) for SalesCountry in ([India], [US], [UK])
+) as PivotTable
+
+-- pivot kasutamine võimaldab meil ridu muuta veergudeks
+-- ja teha andmete koondamist.
+
+--lisada veerg nimega Id int primary key
+
+alter table ProductSales
+add Id int identity(1, 1) primary key
+
+-- nüüd kasutame sama käsklust mis enne
+select SalesAgent, India, US, UK
+from ProductSales
+pivot
+(
+	sum(SalesAmount) for SalesCountry in ([India], [US], [UK])
+) as PivotTable
+
+-- nüüd on veerg Id olemas, aga see ei mõjuta pivotit, kuna me ei kasuta
+-- võrreldes eelmise päringuga, tulemus teistsugune
+select SalesAgent, India, US, UK
+from 
+(
+	select SalesAgent, SalesCountry, SalesAmount from ProductSales
+)
+as SourceTable
+pivot
+(
+	sum(SalesAmount) for SalesCountry in (India, US, UK)
+)
+as PivotTable
+
+-- transaction
+
+-- transaction on SQL-i käskluste kogum,
+-- mis täidetakse ühtse tööüksusena.
+--kontrollib vigu. Kui on viga, siis taastab algse oleku.
+
+create table MailingAddress
+(
+	Id int not null primary key,
+	EmployeeNumber int,
+	HouseNumber nvarchar(50),
+	StreetAddress nvarchar(50),
+	City nvarchar(20),
+	PostalCode nvarchar(20)
+)
+
+create table PhysicalAddress
+(
+	Id int not null primary key,
+	EmployeeNumber int,
+	HouseNumber nvarchar(50),
+	StreetAddress nvarchar(50),
+	City nvarchar(20),
+	PostalCode nvarchar(20)
+)
+
+insert into PhysicalAddress 
+values (1, 101, '#10', 'King Street', 'London', 'CR27DW')
+
+insert into MailingAddress 
+values (1, 101, '#10', 'King Street', 'London', 'CR27DW')
+
+create proc spUpdateAddress
+as begin
+	begin try
+		begin transaction
+			update MailingAddress set City = 'LONDON'
+			where MailingAddress.Id = 1 and EmployeeNumber = 101
+
+			update MailingAddress set City = 'LONDON'
+			where MailingAddress.Id = 1 and EmployeeNumber = 101
+		commit transaction
+	end try
+	begin catch
+		rollback tran
+	end catch
+end
+
+spUpdateAddress
+
+select * from MailingAddress
+select * from PhysicalAddress
+
+-- kasutame sama sp-d, aga muudame sisu
+
+alter proc spUpdateAddress
+as begin
+	begin try
+		begin transaction
+			update MailingAddress set City = 'LONDON 12'
+			where MailingAddress.Id = 1 and EmployeeNumber = 101
+
+			update MailingAddress set City = 'LONDON LONDON'
+			where MailingAddress.Id = 1 and EmployeeNumber = 101
+		commit transaction
+	end try
+	begin catch
+		rollback tran
+	end catch
+end
+
+spUpdateAddress
+
+select * from MailingAddress
+select * from PhysicalAddress
+
+truncate table MailingAddress
+truncate table PhysicalAddress
+
+--juhul kui teine ei lähe läbi,
+--siis 
+
+-- transaction ACID test
+
+-- edukas transaction peab läbima ACID testi:
+-- A - atomic e aatomilkus
+-- C - consistent e järjepidevus
+-- I - isolated e isoleeritud
+-- D - durable e vastupidav
+
+--- Atomic - kõik tehingud transactionis on kas edukalt täidetud või need 
+--lükatakse tagasi. Nt, mõlemad käsud peaksid alati õnnestuma. Andmebaas
+--teeb sellisel juhul: 
+
+--- Consistent - kõik transactionid puudutavad andmed jäetakse loogiliselt
+--järjepidevasse olekusse. Nt, kui laos saadaval olevaid esemete hulka
+-- vähendatakse, siis tabelis peab olema vastav kanne. Inventuur ei saa
+-- lihtsalt kaduda
+
+--- Isolated - transaction peab andmeid mõjutama, sekkumata teistesse
+-- samaaegsetesse transactionitesse. See takistab andmete muutmist, mis 
+-- põhinevad sidumata tabelitel. Nt, muudatused kirjas, mis hiljem tagasi
+--muudetakse. Enamik DB-d kasutab tehingute isoleerimise säilitamiseks
+-- lukustamist
+
+--- Durable - kui muudatus on tehtud, siis see on püsiv. Kui süsteemiviga või
+
+truncate table Product
+truncate table ProductSales
+
+drop table Product
+drop table ProductSales
+
+create table Product 
+(
+Id int identity primary key,
+Name nvarchar(50),
+Description nvarchar(250)
+)
+
+create table ProductSales 
+(
+Id int identity primary key,
+ProductId int foreign key references Product(Id),
+UnitPrice int,
+QuantitySold int
+)
+
+insert into Product values
+('TV', '52 inch black color TV'),
+('LapTop', 'Very thin silver color laptop'),
+('Desktop', 'HP hgh performance desktop')
+
+insert into ProductSales values
+(3, 450, 5),
+(2, 250, 7),
+(3, 450, 4),
+(3, 450, 9)
+
+select * from Product
+select * from ProductSales
+
+--kirjutame päringu, mis annab infot müümata toodetest
+select Id, Name, Description
+from Product
+where Id not in (select distinct ProductId from ProductSales)
+
+--enamus juhtudel saab asendada subquerit JOIN.ga
+--teeme sama päringu, aga JOIN-iga
+select Product.Id, Name, Description
+from Product
+left join ProductSales
+on Product.Id = ProductSales.ProductId
+where ProductSales.ProductId is null
+
+-- teeme subqueri, kus kasutame select-i. Kirjutame päringu, kus
+-- saame teada NAME ja TotalQuantity veeru andmeid.
+select Name,
+(select sum(QuantitySold) from ProductSales where ProductId = Product.Id) as
+TotalQuantity
+from Product
+order by Name
+
+-- sama tulemuse JOIN-ga
+select Name, sum(QuantitySold) as TotalQuantity
+from Product
+left join ProductSales
+on Product.Id = ProductSales.ProductId
+group by Name
+order by Name
+
+--- subqueryt saab subquery sisse panna
+-- subquery on alati sulgudes ja neid nimetatakse sisemiseks päringuteks
+
