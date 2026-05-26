@@ -2630,9 +2630,124 @@ begin
 	drop table Employee
 	print 'Table dropped'
 end
+create table Employee
+(
+	Id int primary key,
+	Name nvarchar(30),
+	ManagerId int
+)
+print 'Table created'
+
+
+-- kui teha uuesti käivitatavaks veeru kontrollimist ja loomist
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where
+COLUMN_NAME = 'Email' and TABLE_NAME = 'Employee' and TABLE_SCHEMA = 'dbo')
+begin
+	alter table Employee
+	add Email nvarchar(50)
+end
 else
 begin
-	print 'Table does not exist'
+	print 'Column already exists'
 end
 
+--kontrollime, kas mingi nimega veerg on olemas???
+--kasutame COL_LENGTH
+if COL_LENGTH('Employee', 'Email') is null
+begin
+	alter table Employee
+	add Email nvarchar(50)
+end
+else
+begin
+	print 'Column already exists'
+end
 
+-- MERGE
+--- tutvustati aastal 2008, mis lubab teha sisestamist, uuendamist ja kustutamist
+--- ei pea kasutama mitut käsku
+
+--merge puhul peab alati olema vähemalt kaks tabelit:
+-- 1. algallika tabel e source table
+-- 2. siht tabel e target table
+
+--ühendab sihttabeli lähtetabeliga ja kasutab mõlemas tabelis ühist veergu
+--koodinäide
+merge [TARGET] as T
+using [SOURCE] as S
+	on [JOIN_CONDITION]
+when matched then 
+	[UPDATE_STATEMENT]
+when not matched by target then
+	[INSERT_STATEMENT]
+when not matched by source then
+	[DELETE_STATEMENT];
+
+create table StudentSource
+(
+Id int primary key,
+Name nvarchar(20),
+)
+go
+insert into StudentSource values (1, 'Mike')
+insert into StudentSource values (2, 'Sara')
+go
+
+create table StudentTarget
+(
+Id int primary key,
+Name nvarchar(20),
+)
+go
+insert into StudentTarget values (1, 'Mike M')
+insert into StudentTarget values (2, 'John')
+
+select * from StudentSource
+select * from StudentTarget
+
+-- 1. kui leitakse klappiv rida, siis StudentTarget tabel on uuendatud
+-- 2. kui read on StudentSource tabelis olemas, aga mitte StudentTarget-s, 
+-- siis puuduolevad read sisestatakse
+-- 3. kui read on olemas StudentTarget-s aga mitte StudentSource-s, siis StudentTarget
+-- tabelis read kustutatakse ära
+-- vaja teha merge, kasutada match
+merge StudentTarget as T
+using StudentSource as S
+on T.Id = S.Id
+when matched then
+	update set T.Name = S.Name
+when not matched by target then
+	insert(Id, Name) values(S.Id, S.Name)
+when not matched by source then
+	delete;
+go
+select * from StudentTarget
+select * from StudentSource
+
+truncate table StudentSource
+truncate table StudentTarget
+
+insert into StudentSource values (1, 'Mike')
+insert into StudentSource values (2, 'Sara')
+
+insert into StudentTarget values (1, 'Mike M')
+insert into StudentTarget values (3, 'John')
+
+merge StudentTarget as T
+using StudentSource as S
+on T.Id = S.Id
+when matched then
+	update set T.Name = S.Name
+when not matched by target then
+	insert(Id, Name) values(S.Id, S.Name);
+go
+
+select * from StudentTarget
+select * from StudentSource
+
+--transaction-d
+
+--mis see on?
+--on rühm käske, mis muudavad DB-s salvestatud andmeid. Tehingut käsitletakse 
+--ühe tööüksusena. Kas kõik käsud õnnestuvad või mitte. Kui üks tehing sellest ebaõnnestub
+--siis kõik juba muutetud andmed muudetakse tagasi
