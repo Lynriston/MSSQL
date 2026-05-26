@@ -1,67 +1,73 @@
---Tablei tegemin
+create database TARge25
+
+--db valimine
+use master
+
+--04.03.26
+--2 tund
+
+--db kustutamine
+drop database TARge25
+
+--tabeli tegemine
 create table Gender
 (
-id int not null primary key,
+Id int not null primary key,
 Gender nvarchar(10) not null
 )
 
 --andmete sisestamine
 insert into Gender (Id, Gender)
-values (2,'Male'),
+values (2, 'Male'),
 (1, 'Female'),
-(3, 'Unkown')
+(3, 'Unknown')
 
---Tabeli sisu vaatamine
+--tabeli sisu vaatamine
 select * from Gender
 
---Tehke tabel nimega Person
---id int, not null, primary key
---Name nvarchar 30
---Email nvarchar 30
---GenderId int
+--tehke tabel nimega Person
 create table Person
 (
-id int not null primary key,
+Id int not null primary key,
 Name nvarchar(30),
 Email nvarchar(30),
 GenderId int
 )
 
 --andmete sisestamine
-insert into Person (id, Name, Email, GenderId)
-values (1,'Superman', 's@s.com', 2),
+insert into Person (Id, Name, Email, GenderId)
+values (1, 'Superman', 's@s.com', 2),
 (2, 'Wonderwoman', 'w@w.com', 1),
 (3, 'Batman', 'b@b.com', 2),
 (4, 'Aquaman', 'a@a.com', 2),
 (5, 'Catwoman', 'cat@cat.com', 1),
-(6, 'Antman', 'ant@ant.com', 2),
+(6, 'Antman', 'ant"ant.com', 2),
 (8, NULL, NULL, 2)
 
-
---Soovime näha Person tabeli sisus
+--soovime näha Person tabeli sisu
 select * from Person
 
 --võõrvõtme ühenduse loomine kahe tabeli vahel
 alter table Person add constraint tblPerson_GenderId_FK
-foreign key (Gender) references Gender(id)
+foreign key (GenderId) references Gender(Id)
 
---kui sisestatud uue rea andmed ja ei ole sisestatud genderId alla väärtus, siis
---see automataatselt sisestab sellele reale väärtuse 3 e mis meil on unkown
+--kui sisestad uue rea andmeid aj ei ole sisestanud genderId alla väärtust, siis
+--see automaatselt sisestab sellele reale väärtuse 3 e mis meil on unknown
 alter table Person
-add constraint DF_Person_GenderId
+add constraint DF_Persons_GenderId
 default 3 for GenderId
 
-insert into Person (id, Name, Email, GenderId)
-values (7, 'Flash', 'f@f.com', NULL)
+insert into Person (Id, Name, Email, GenderId)
+values (7, 'Flash','f@f.com', NULL)
 
-insert into Person (id, Name, Email)
-values (9, 'Black Panter', 'p@p.com', 2)
+insert into Person (Id, Name, Email)
+values (9, 'Plack Panther','p@p.com')
 
 select * from Person
 
---kustutada DF_Persons_GenderID piirang koodiga
+--kustutada DF_Persons_GenderId piirang koodiga
 alter table Person
-drop constraint DF_Person_GenderID
+drop constraint DF_Persons_GenderId
 
 --lisame koodiga veeru
 alter table Person
@@ -71,10 +77,10 @@ add Age nvarchar(10)
 alter table Person
 add constraint CK_Person_Age check (Age > 0 and Age < 155)
 
---kui sa tead veergude järjekorda peast 
+--kui sa tead veergude järjekorda peast, 
 --siis ei pea neid sisestama
-insert into Person
-Values (10, 'Green Arrow', 'g@g.com', 2, 154)
+insert into Person 
+values (10, 'Green Arrow', 'g@g.com', 2, 154)
 
 --constrainti kustutamine
 alter table Person
@@ -83,14 +89,14 @@ drop constraint CK_Person_Age
 alter table Person
 add constraint CK_Person_Age check (Age > 0 and Age < 130)
 
---kustutame rea 
-delete from Person where id = 10
+-- kustutame rea
+delete from Person where Id = 10
 
---kuidas uuendada andmeid koodiga 
---id 3 uus vanus on 50
+--kuidas uuendada andmeid koodiga
+--Id 3 uus vanus on 50
 update Person
 set Age = 50
-where id = 3
+where Id = 3
 
 --lisame Person tabelisse veeru City ja nvarchar 50
 alter table Person
@@ -98,122 +104,119 @@ add City nvarchar(50)
 
 --kõik, kes elavad Gothami linnas
 select * from Person where City = 'Gotham'
---kõik, kes EI ela Gothamis
-select * from Person where City != 'Gotham'
+--k]ik, kes ei ela Gothamis
 select * from Person where City <> 'Gotham'
+select * from Person where City != 'Gotham'
 select * from Person where not City = 'Gotham'
 
---näitab teatud vanusega inimesi
+--n'itab teatud vanusega inimesi
 --35, 42, 23
-select * from Person where Age = 35
-select * from Person where Age = 42
-select * from Person where Age = 23
 select * from Person where Age = 35 or Age = 42 or Age = 23
 select * from Person where Age in (35, 42, 23)
 
 --näitab teatud vanusevahemikus olevaid isikuid 22 kuni 39
-select * from Person where Age > 21 and Age < 40
 select * from Person where Age between 22 and 39
 
 --wildcardi kasutamine
 --näitab kõik g-tähega algavad linnad
-select * from Person where City like 'G%'
---näitab kõik g-tähega lõppevad linnad
-select * from Person where City like '%G'
-
+select * from Person where City like 'g%'
 --email, kus on @ märk sees
 select * from Person where Email like '%@%'
 
---näitab kellel on emailis ees ja peale @ ainult 1 täht ja omakorda .com 
+--näitab, kellel on emailis ees ja peale @-märki ainult üks täht ja omakorda .com
 select * from Person where Email like '_@_.com'
 
 --kõik, kellel on nimes esimene täht W, A, S
-select * from Person where Name like 'W%' or name like 'A%' or name like 'S%'
-select * from Person where Name like '[WAS]%'
---kõik, mis ei alga tähtetega W,A,S
-select * from Person where Name like '[^WAS]%'
+--katusega v'listab
+select * from Person where  Name like '[^WAS]%'
+
+select * from Person where  Name like '[WAS]%'
 
 --kes elavad Gothamis ja New Yorkis
-select * from Person where (City = 'Gotham' or City = 'New York')
 select * from Person where City = 'Gotham' or City = 'New York'
 
---kes elavad Gothamis ja New Yorkis ja on vanemad kui 29
-select * from Person where (City = 'Gotham' or City = 'New York') and Age > 29
+--kes elavad Gothamis ja New Yorkis ja on vanemad, kui 29
+select * from Person where (City = 'Gotham' or City = 'New York')
+and Age >= 30
 
-
---Alates Rida 145
---10.03.2026 tund
+--rida 124
+-- 3 tund
+--10.03.26
 
 --kuvab tähestikulises järjekorras inimesi ja võtab aluseks nime
-
 select * from Person order by Name
+--kuvab vastupidises järjestuses nimed
+select * from Person order by Name desc
 
---kuvab vastupidises järjekorras inimesi ja võtab aluseks nime
-select * from Person order by Name Desc
-
---Võtab kolm esimest rida person tabelist
+--võtab kolm esimest rida person tabelist
 select top 3 * from Person
 
---kolm esimest, aga tabeli järjestu on Age ja siis Name
+--kolm esimest, aga tabeli järjestus on Age ja siis Name
 select * from Person
-select top 3 Age, Name from person order by cast(Age as int)
+select top 3 Age, Name from Person order by cast(Age as int)
 
 --näita esimesed 50% tabelist
-select top 50 PERCENT * from Person
+select top 50 percent * from Person
 
 --kõikide isikute koondvanus
-select SUM(cast(Age as int)) from Person
+select sum(cast(Age as int)) from Person
 
 --näitab kõige nooremat isikut
 select min(cast(Age as int)) from Person
 
---näitab kõige vanem isikut
+--kõige vanem isik
 select max(cast(Age as int)) from Person
 
---muudame Age veeru in andmetüübiks
+--muudame Age veeru int andmetüübiks
 alter table Person
-alter column Age int
+alter column Age int;
 
 --näeme konkreetsetes linnades olevate isikute koondvanust
-select SUM(Age) from Person where (City = 'Gotham')
 select City, sum(Age) as TotalAge from Person group by City
 
 --kuvab esimeses reas välja toodud järjestuses ja kuvab Age TotalAge-ks
---Järjestab City-s olevate nimede järgi ja siis GenderId järgi
+--järjestab City-s olevate nimede järgi ja siis GenderId järgi
 select City, GenderId, sum(Age) as TotalAge from Person
 group by City, GenderId order by City
 
---näitab et mitu rida on selles tabelis
-select COUNT(*) from Person
+--näitab, et mitu rida on selles tabelis
+select * from Person
+select count(*) from Person
 
---näitab tulemust et mitu inimest on GenderId väärtusega 2 konkreetses linnas
+--näitab tulemust, et mitu inimest on GenderId väärtusega 2 konkreetses linnas
 --arvutab vanuse kokku konkreetses linnas
-select GenderId, City, sum(Age) as TotalAge, count(id) as [Total Person(s)] from Person where GenderId = '2'
-group by GenderId, City order by GenderId
+select GenderId, City, sum(Age) as TotalAge, count(Id) as [Total Person(s)]
+from Person
+where GenderId = '2'
+group by GenderId, City
 
---näitab ära inimeste koondvanus, mis on üle 41 a ja
---kui palju neid igaslinnas elab
+--näitab ära inimeste koondvanuse, mis on üle 41 a ja 
+--kui palju neid igas linnas elab
 --eristab soo järgi
-select GenderId, City, sum(Age) as TotalAge, count(id) as [Total Person(s)] from Person
+select GenderId, City, sum(Age) as TotalAge, count(Id) as [Total Person(s)]
+from Person
 group by GenderId, City having sum(Age) > 41
 
 --loome tabelid Employees ja Department
-create table Employees(
-id int not null primary key,
-Name nvarchar(50),
-GenderId nvarchar(50),
-Salary nvarchar(50),
-DepartmentId int
-)
-
-create table Department(
-id int not null primary key,
+create table Department
+(
+Id int primary key,
 DepartmentName nvarchar(50),
 Location nvarchar(50),
 DepartmentHead nvarchar(50)
 )
-insert into Employees(id, Name, GenderId, Salary, DepartmentId)
-values (1,'Tom', 'Male', 4000, 1),
+
+create table Employees
+(
+Id int primary key,
+Name nvarchar(50),
+Gender nvarchar(50),
+Salary nvarchar(50),
+DepartmentId int
+)
+
+insert into Employees (Id, Name, Gender, Salary, DepartmentId)
+values (1, 'Tom', 'Male', 4000, 1),
 (2, 'Pam', 'Female', 3000, 3),
 (3, 'John', 'Male', 3500, 1),
 (4, 'Sam', 'Male', 4500, 2),
@@ -221,37 +224,38 @@ values (1,'Tom', 'Male', 4000, 1),
 (6, 'Ben', 'Male', 7000, 1),
 (7, 'Sara', 'Female', 4800, 3),
 (8, 'Valarie', 'Female', 5500, 1),
-(9, 'James', 'Male', 6500, null),
-(10, 'Russell', 'Male', 8800, null)
+(9, 'James', 'Male', 6500, NULL),
+(10, 'Russell', 'Male', 8800, NULL)
 
-insert into Department(id, DepartmentName, Location, DepartmentHead)
-values (1,'IT', 'London', 'Rick'),
+insert into Department(Id, DepartmentName, Location, DepartmentHead)
+values 
+(1, 'IT', 'London', 'Rick'),
 (2, 'Payroll', 'Delhi', 'Ron'),
 (3, 'HR', 'New York', 'Christie'),
-(4, 'Other Department', 'Sydney', 'Cindella')
+(4, 'Other Department', 'Sydney', 'Cindrella')
 
 --
-select Name, GenderId, Salary, DepartmentName from Employees
+select Name, Gender, Salary, DepartmentName
+from Employees
 left join Department
-on Employees.DepartmentId = Department.id
+on Employees.DepartmentId = Department.Id
 
 --arvutame kõikide palgad kokku
-select sum(cast(Salary as int)) as TotalSum from Employees
+select sum(cast(Salary as int)) from Employees
 --min palga saaja
-select min(Salary) from Employees
---
+select min(cast(Salary as int)) from Employees
 
---17.02.2026
-
+--- rida 251
+--- 4 tund
+--- 17.03.26
 --teeme left join päringu
-
 select Location, sum(cast(Salary as int)) as TotalSalary
 from Employees
 left join Department
 on Employees.DepartmentId = Department.Id
 group by Location --ühe kuu palgafond linnade lõikes
 
---teeme veeru nimega City Employees tabelisse
+--teem veeru nimega City Employees tabelisse
 --nvarchar 30
 alter table Employees
 add City nvarchar(30)
@@ -259,213 +263,215 @@ add City nvarchar(30)
 select * from Employees
 
 --peale selecti tulevad veergude nimed
-select City, GenderId, sum(cast(Salary as int)) as TotalSalary 
+select City, Gender, sum(cast(Salary as int)) as TotalSalary 
 --tabelist nimega Employees ja mis on grupitatud City ja Gender järgi
-from Employees group by City, GenderId
+from Employees group by City, Gender
 
 --oleks vaja, et linnad oleksid tähestikulises järjekorras
-select City, GenderId, sum(cast(Salary as int)) as TotalSalary 
-from Employees group by City, GenderId 
+select City, Gender, sum(cast(Salary as int)) as TotalSalary 
+from Employees group by City, Gender
 order by City
-
---order by järjestab Linnad tähestikulises järjekorras
+--order by järjestab linnad tähesitkuliselt, 
 --aga kui on nullid, siis need tulevad kõige ette
 
---loeb ära mitu rida on tabelis employees
---* asemel võib panna ka veeru nime, 
---aga siis loeb ainult selle veeru väärtused, mis ei ole nullid
-select count(*) from Employees
+-- loeb ära, mitu rida on tabelis Employees
+-- * asemele võib panna ka veeru nime,
+-- aga siis loeb ainult selle veeru väärtused, mis ei ole nullid
+select COUNT(*) from Employees
 
 --mitu töötajat on soo ja linna kaupa
-select GenderId, City, sum(cast(Salary as int)) as TotalSum,
-count(id) as [Total Employee(s)]
+select City, Gender, sum(cast(Salary as int)) as TotalSalary,
+count(Id) as [Total Employee(s)]
 from Employees 
-group by City, GenderId
+group by City, Gender
 
 --kuvab ainult kõik mehed linnade kaupa
-
-select GenderId, City, sum(cast(Salary as int)) as TotalSum,
-count(id) as [Total Employee(s)]
-from Employees where GenderId = 'Male'
-group by City, GenderId
-
---kuvab ainult kõik naised linnade kaupa
-
-select GenderId, City, sum(cast(Salary as int)) as TotalSum,
-count(id) as [Total Employee(s)]
-from Employees where GenderId = 'Female'
-group by City, GenderId
-
---sama tulemus aga kasutage having klausit
-select GenderId, City, sum(cast(Salary as int)) as TotalSum,
-count(id) as [Total Employee(s)]
+select City, Gender, sum(cast(Salary as int)) as TotalSalary,
+count(Id) as [Total Employee(s)]
 from Employees 
-group by City, GenderId
-having GenderId = 'Male'
+where Gender = 'Female'
+group by City, Gender
 
-select GenderId, City, sum(cast(Salary as int)) as TotalSum,
-count(id) as [Total Employee(s)]
+--sama tulemuse, aga kasutage having klauslit
+select City, Gender, sum(cast(Salary as int)) as TotalSalary,
+count(Id) as [Total Employee(s)]
 from Employees 
-group by City, GenderId
-having GenderId = 'Female'
+group by City, Gender
+having Gender = 'Male'
 
 --näitab meile ainult need töötajad, kellel on palga summa üle 4000
-select Name, City, GenderId, sum(cast(Salary as int)) as TotalSalary,
-count(id) as [Total Employee(s)]
-from Employees
-group by Name, GenderId, City, Salary
+select * from Employees
+where sum(cast(Salary as int)) > 4000
+
+select City, sum(cast(Salary as int)) as TotalSalary, Name,
+count(Id) as [Total Employee(s)]
+from Employees 
+group by Salary, City, Name
 having sum(cast(Salary as int)) > 4000
 
 --loome tabeli, milles hakatakse automaatselt nummerdama Id-d
 create table Test1
 (
-id int identity(1,1) primary key,
+Id int identity(1,1) primary key,
 Value nvarchar(30)
 )
 
 insert into Test1 values('X')
 select * from Test1
 
--- kustutame veeru nimega City Employees tabelist
+--- kustutame veeru nimega City Employees tabelist
 alter table Employees
 drop column City
 
---inner join
+-- inner join
 --kuvab neid, kellel on DepartmentName all olemas väärtus
-select Name, GenderId, Salary, DepartmentName
+select Name, Gender, Salary, DepartmentName
 from Employees
 inner join Department
-on Employees.DepartmentId = Department.id
+on Employees.DepartmentId = Department.Id
 
---left join
---kuvab kõik read Employees tabelis'
---aga DepartmentName näitab ainult siis, kui on olemas
---kui DepartmentId on null, siis DepartmentName on nulli
-
-select Name, GenderId, Salary, DepartmentName
+-- left join
+-- kuvab kõik read Employees tabelist, 
+-- aga DepartmentName näitab ainult siis, kui on olemas
+-- kui DepartmentId on null, siis DepartmentName näitab nulli
+select Name, Gender, Salary, DepartmentName
 from Employees
 left join Department
-on Employees.DepartmentId = Department.id
+on Employees.DepartmentId = Department.Id
 
---right join
---kuvab k'ik read Fepartment tabelis,
---aga Name näitab ainult siis, kui on olemas väärtus DepartmentId-s, mis on sama 
---mis Department tabelis Id.
-select Name, GenderId, Salary, DepartmentName
+-- right join
+-- kuvab kõik read Department tabelist
+-- aga Name näitab ainult siis, kui on olemas väärtus DepartmentId-s, mis on sama 
+-- Department tabeli Id-ga
+select Name, Gender, Salary, DepartmentName
 from Employees
 right join Department
-on Employees.DepartmentId = Department.id
+on Employees.DepartmentId = Department.Id
 
---full outer join ja full join on sama asi
---kuvab kõik read mõlemast reast
---aga kui ei ole vastet, siis näitab nulli
-select Name, GenderId, Salary, DepartmentName
+-- full outer join ja full join on sama asi
+-- kuvab kõik read mõlemast tabelist, 
+-- aga kui ei ole vastet, siis näitab nulli
+select Name, Gender, Salary, DepartmentName
 from Employees
-full outer join Department
-on Employees.DepartmentId = Department.id
+full join Department
+on Employees.DepartmentId = Department.Id
 
---cross join
---kuvab küik read mõlemast tabelist, aga ei võta aluseks mingit veergu
---vaid lihtsalt kombineerib kõik read omavahel
---kasutatakse harva, aga kui on vaja kombineerida kõiki
---võimalikke kombinatsioone kahe tabeli vahel, siis võib kasutada cross join
-select Name, GenderId, Salary, DepartmentName
+-- cross join
+-- kuvab kõik read mõlemast tabelist, aga ei võta aluseks mingit veergu,
+-- vaid lihtsalt kombineerib kõik read omavahel
+-- kasutatakse harva, aga kui on vaja kombineerida kõiki 
+-- võimalikke kombinatsioone kahe tabeli vahel, siis võib kasutada cross joini
+select Name, Gender, Salary, DepartmentName
 from Employees
 cross join Department
-where Employees.DepartmentId = Department.id
 
---päeringu sisu
+-- päringu sisu
 select ColumnList
 from LeftTable
 joinType RightTable
 on JoinCondition
 
-select Name, GenderId, Salary, DepartmentName
+select Name, Gender, Salary, DepartmentName
 from Employees
 inner join Department
-on Department.id = Employees.DepartmentId
+on Department.Id = Employees.DepartmentId
 
---kuidas kuvada ainult need isikud, kellel on DepartmentName NULL
-select Name, GenderId, Salary, DepartmentName
+-- kuidas kuvada ainult need isikud, kellel on DepartmentName NULL
+select Name, Gender, Salary, DepartmentName
 from Employees
 left join Department
-on Employees.DepartmentId = Employees.DepartmentId
+on Employees.DepartmentId = Department.Id
 where Employees.DepartmentId is null
 
-select Name, GenderId, Salary, DepartmentName
+--teine variant
+select Name, Gender, Salary, DepartmentName
 from Employees
 left join Department
-on Employees.DepartmentId = Employees.DepartmentId
-where Employees.Id is null
+on Employees.DepartmentId = Department.Id
+where Department.Id is null
 
---kuidas saame department tabelis oleva rea, kus on null
-select Name, GenderId, Salary, DepartmentName
+-- kuidas saame department tabelis oleva rea, kus on NULL
+select Name, Gender, Salary, DepartmentName
 from Employees
 right join Department
-on Employees.DepartmentId = Department.id
-Where Employees.DepartmentId is null
+on Employees.DepartmentId = Department.Id
+where Employees.DepartmentId is null
 
---full join 
---kus on vaja kuvada kõik read mõlemast tabelist
+--full join
+--kus on vaja kuvada kõik read mõlemast tabelist, 
 --millel ei ole vastet
-select Name, GenderId, Salary, DepartmentName
+select Name, Gender, Salary, DepartmentName
 from Employees
 full join Department
-on Employees.DepartmentId = Department.id
+on Employees.DepartmentId = Department.Id
 where Employees.DepartmentId is null
-or DepartmentId is null
+or Department.Id is null
 
---tabeli nimetusi muutmine koodiga
+--tabeli nimetuse muutmine koodiga
 sp_rename 'Employees1', 'Employees'
 
---kasutame Employees tabeli asemel lühendit E ja M
---aga enne seda lisame uue veeru nimega ManagerId ja see on int
+-- kasutame Employees tabeli asemel lühendit E ja M
+-- aga enne seda lisame uue veeru nimega ManagerId ja see on int
 alter table Employees
 add ManagerId int
 
---antud juhul E on Employees tabeli lühend ja M
---on samuti Employees tabeli lühend, aga me kasutame
---seda, et näidata, et see on manageri tabel
+-- antud juhul E on Employees tabeli lühend ja M 
+-- on samuti Employees tabeli lühend, aga me kasutame 
+-- seda, et näidata, et see on manageri tabel
 select E.Name as Employee, M.Name as Manager
 from Employees E
 left join Employees M
 on E.ManagerId = M.Id
 
-select FirstName, LastName, Phone, AddressId, AddressType
-from SalesLT.CustomerAddress CA --Lühend
-left join SalesLT.Customer C --Lühend
+--inner join ja kasutame lühendeid
+select E.Name as Employee, M.Name as Manager
+from Employees E
+inner join Employees M
+on E.ManagerId = M.Id
+
+--cross join ja kasutame lühendeid
+select E.Name as Employee, M.Name as Manager
+from Employees E
+cross join Employees M
+
+
+select FirstName, LastName, Phone, AddressID, AddressType
+from SalesLT.CustomerAddress CA
+left join SalesLT.Customer C
 on CA.CustomerID = C.CustomerID
 
---teha päring kus kasutate ProductModel ja Product tableit,
---et näha, millised tooted on millise mudeliga seotud
-select PM.Name as ProductModel, PName as Product
+-- teha päring, kus kasutate ProductModelit ja Product tabelit, 
+-- et näha, millised tooted on millise mudeliga seotud
+
+select PM.Name as ProductModel, P.Name as Product
 from SalesLT.Product P
 left join SalesLT.ProductModel PM
-on PM.ProductModelID = P.ProductModelID
+on PM.ProductModelId = P.ProductModelId
 
-
---31.03.2026
+--rida 412
+--4 tund
+--31.03.26
 select isnull('Sinu Nimi', 'No Manager') as Manager
 
 select COALESCE(null, 'No Manager') as Manager
 
---NEIL kellel ei ole ülemust, siis paneb neile No Manager teksti
-select E.Name as Employee, ISNULL(M.Name, 'No Manager') as Manager
+--neil kellel ei ole ülemust, siis paneb neile No Manager teksti
+select E.Name as Employee, isnull(M.Name, 'No Manager') as Manager
 from Employees E
 left join Employees M
-on E.ManagerId = M.id
+on E.ManagerId = M.Id
 
---kui Expression on õige, siis paneb väärtuse, mida soovid või
+-- kui Expression on õige, siis paneb väärtuse, mida soovid või 
 --vastasel juhul paneb No Manager teksti
-case when Expression then '' else '' end
+case when Expression Then '' else '' end
 
 --teeme päringu, kus kasutame case-i
---tuleb kasutada ka left join
+-- tuleb kasutada ka left join
 select E.Name as Employee, case when M.Name is null then 'No Manager'
 else M.Name end as Manager
 from Employees E
 left join Employees M
-on E.ManagerId = M.id
+on E.ManagerId = M.Id
 
 --lisame tabelisse uued veerud
 alter table Employees
@@ -474,55 +480,52 @@ alter table Employees
 add LastName nvarchar(30)
 
 --muudame veeru nime koodiga
-sp_rename 'Employees.MiddleName', 'Middlename1'
-select * from Employees
+sp_rename 'Employees.Middlename', 'MiddleName'
+select* from Employees
 
 update Employees
 set FirstName = 'Tom', MiddleName = 'Nick', LastName = 'Jones'
-where id = 1
+where Id = 1
 
 update Employees
-set FirstName = 'Pam', MiddleName = null, LastName = 'Anderson'
-where id = 2
+set FirstName = 'Pam', MiddleName = NULL, LastName = 'Anderson'
+where Id = 2
 
 update Employees
-set FirstName = 'John', MiddleName = null, LastName = null
-where id = 3
+set FirstName = 'John', MiddleName = NULL, LastName = NULL
+where Id = 3
 
 update Employees
-set FirstName = 'Sam', MiddleName = null, LastName = 'Smith'
-where id = 4
+set FirstName = 'Sam', MiddleName = NULL, LastName = 'Smith'
+where Id = 4
 
 update Employees
-set FirstName = null, MiddleName = 'Todd', LastName = 'Someone'
-where id = 5
+set FirstName = NULL, MiddleName = 'Todd', LastName = 'Someone'
+where Id = 5
 
 update Employees
 set FirstName = 'Ben', MiddleName = 'Ten', LastName = 'Sven'
-where id = 6
+where Id = 6
 
 update Employees
-set FirstName = 'Sara', MiddleName = null, LastName = 'Connor'
-where id = 7
+set FirstName = 'Sara', MiddleName = NULL, LastName = 'Connor'
+where Id = 7
 
 update Employees
-set FirstName = 'Valarie', MiddleName = 'Balerine', LastName = null
-where id = 8
+set FirstName = 'Valarie', MiddleName = 'Balerine', LastName = NULL
+where Id = 8
 
 update Employees
 set FirstName = 'James', MiddleName = '007', LastName = 'Bond'
-where id = 9
+where Id = 9
 
 update Employees
-set FirstName = 'Russell', MiddleName = null, LastName = 'Crowe'
-where id = 10
-
-select * from Employees
+set FirstName = NULL, MiddleName = NULL, LastName = 'Crowe'
+where Id = 10
 
 --igast reast võtab esimesena mitte nulli väärtuse ja paneb Name veergu
---kasutada coalsece
-
-select id, coalesce(FirstName, MiddleName, LastName) as Name
+--kasutada coalesce
+select Id, coalesce(FirstName, MiddleName, LastName) as Name
 from Employees
 
 create table IndianCustomers
@@ -552,79 +555,79 @@ select * from UKCustomers
 
 --kasutate union all
 --kahe tabeli andmete vaatamiseks
---näitab kõiki read mõlemast tabelist
+--näitab kõik read mõlemast tabelist
 select Id, Name, Email from IndianCustomers
-union all 
+union all
 select Id, Name, Email from UKCustomers
 
---korduvate väärtuste eemaldamiseks kasutame union
+--korduvate väärtuste eemaldamiseks kasutame unionit
 select Id, Name, Email from IndianCustomers
 union
 select Id, Name, Email from UKCustomers
 
 --kuidas tulemust sorteerida nime järgi
---kasutage union all-i
+--kasutada union all-i
 select Id, Name, Email from IndianCustomers
-union all 
+union all
 select Id, Name, Email from UKCustomers
 order by Name
 
---stored procedures
---salvestatud protseduurid on SQL-i koodid, mis on salvestatud
---andmebaasis ja mida saab käivitada,
+--stored procedure
+--salvestatud protseduurid on SQL-i koodid, mis on salvest
+--salvestatud andmebaasis ja mida saab käivitada, 
 --et teha mingi kindel töö ära
-
 create procedure spGetEmployees
 as begin
-	select FirstName, GenderId from Employees
+	select FirstName, Gender from Employees
 end
 
-
---nüüd saaame kasuatada spGetEmployees
+--nüüd saame kasutada spGetEmployees-i
 spGetEmployees
 exec spGetEmployees
 execute spGetEmployees
 
---
+---
 create proc spGetEmployeesByGenderAndDepartment
 @Gender nvarchar(10),
-@DepartmentId int 
+@DepartmentId int
 as begin
-	select FirstName, GenderId, DepartmentId from Employees
-	where GenderId = @Gender and DepartmentId = @DepartmentId
+	select FirstName, Gender, DepartmentId from Employees 
+	where Gender = @Gender and DepartmentId = @DepartmentId
 end
 
 --miks saab veateate
 spGetEmployeesByGenderAndDepartment
 --õige variant
-spGetEmployeesByGenderAndDepartment 'male', 1
+spGetEmployeesByGenderAndDepartment 'female', 1
 --kuidas minna sp järjekorrast mööda parameetrite sisestamisel
 spGetEmployeesByGenderAndDepartment @DepartmentId = 1, @Gender = 'Male'
 
 sp_helptext spGetEmployeesByGenderAndDepartment
 
---muudame sp-d ja võti peale, et keegi teine ei saaks seda muuta
+--muudame sp-d ja võti peale, et keegi teine 
+--peale teie ei saaks seda muuta
 alter procedure spGetEmployeesByGenderAndDepartment
 @Gender nvarchar(10),
 @DepartmentId int
-with encryption
+with encryption --paneb võtme peale
 as begin
-	select FirstName, GenderId, DepartmentId from Employees
-	where GenderId = @Gender and DepartmentId = @DepartmentId
+	select FirstName, Gender, DepartmentId from Employees 
+	where Gender = @Gender and DepartmentId = @DepartmentId
 end
 
 --
 create proc spGetEmployeeCountByGender
 @Gender nvarchar(10),
---output on parameeter mis võimaldab meil salvestada protseduuri
+--output on parameeter, mis võimaldab meil salvestada protseduuri 
 --sees tehtud arvutuse tulemuse ja kasutada seda väljaspool protseduuri
 @EmployeeCount int output
 as begin
-	select @EmployeeCount = count(id) from Employees
-	where GenderId = @Gender
+	select @EmployeeCount = count(Id) from Employees 
+	where Gender = @Gender
 end
 
---annab tulemuse, kus loendab ära nõuetele vasatavad read
+
+--annab tulemuse, kus loendab ära nõuetele vastavad read
 --prindib tulemuse, mis on parameetris @EmployeeCount
 declare @TotalCount int
 exec spGetEmployeeCountByGender 'Female', @TotalCount out
@@ -636,9 +639,9 @@ print @TotalCount
 
 --näitab ära, et mitu rida vastab nõuetele
 declare @TotalCount int
-execute spGetEmployeeCountByGender
+execute spGetEmployeeCountByGender 
 --mis on out?
---out on parameeter, mis võimaldab meil salvestada proteduuri
+--out on parameeter, mis võimaldab meil salvestada protseduuri
 @EmployeeCount = @TotalCount out, @Gender = 'Male'
 print @TotalCount
 
@@ -654,225 +657,214 @@ sp_depends spGetEmployeeCountByGender
 --vaatame tabelit sp_depends-ga
 sp_depends Employees
 
---
+---
 create proc spGetNameById
 @Id int,
 @Name nvarchar(30) output
 as begin
-	select @Id = id, @Name = FirstName from Employees
+	select @Id = Id, @Name = FirstName from Employees
 end
 
 --tahame näha kogu tabelite ridade arvu
 --count kasutada
-create proc spTotalRowCount
+create proc spTotalCount2
 @TotalCount int output
 as begin
-	select @TotalCount = count(id) from Employees
+	select @TotalCount = count(Id) from Employees
 end
 
 --saame teada, et mitu rida on tabelis
 declare @TotalEmployees int
-execute spTotalRowCount @TotalEmployees output
+execute spTotalCount2 @TotalEmployees output
 select @TotalEmployees
 
 --mis id all on keegi nime järgi
 create proc spGetIdByName1
-@ID int,
+@Id int,
 @FirstName nvarchar(30) output
 as begin
-	select @FirstName = FirstName from Employees where @Id = id
+	select @FirstName = FirstName from Employees where @Id = Id
 end
 
 --annab tulemuse, kus id 1 real on keegi koos nimega
 declare @FirstName nvarchar(30)
-execute spGetIdByName1 1, @FirstName output
+execute spGetIdByName1 9, @FirstName output
 print 'Name of the employee = ' + @FirstName
 
---
+---
 declare @FirstName nvarchar(30)
-execute spGetNameById 1, @FirstName output
+execute spGetNameById 3, @FirstName output
 print 'Name of the employee = ' + @FirstName
 --ei anna tulemust, sest sp-s on loogika viga
---sp-s on viga, sest @Id on parameeter
---mis on mõeldud selleks, et me saaksime sisestada id-d
---ja saada nime, aga sp-s on loogika viga, sest see
+--sp-s on viga, sest @Id on parameeter, 
+--mis on mõeldud selleks, et me saaksime sisestada id-d 
+--ja saada nime, aga sp-s on loogika viga, sest see 
 --üritab määrata @Id väärtuseks Id veeru väärtust, mis on vale
 
-sp_help spGetNameByIt
+-- rida 662
+--tund 5
+--07.04.26
+declare @FirstName nvarchar(30)
+execute spGetNameById 1, @FirstName out
+print 'Name of the employee = ' + @FirstName
 
-create proc spGetNameByIt2
+sp_help spGetNameById
+
+create proc spGetNameById2
 @Id int
 as begin
 	return (select FirstName from Employees where Id = @Id)
 end
 
-declare @employeeName nvarchar(30)
-execute @employeeName = spGetNameByIt2 'Tom'
-print 'name of the employee = ' + @EmployeeName
+declare @EmployeeName nvarchar(30)
+execute @EmployeeName = spGetNameById2 3
+print 'Name of the employee = ' + @EmployeeName
 
-alter proc spGetNameByIt2
-    @Id int,
-    @EmployeeName nvarchar(30) OUTPUT
-as
-begin
-    select @EmployeeName = FirstName 
-    from Employees 
-    where Id = @Id
-end
 
-declare @employeeName nvarchar(30)
+--------------------------
+alter PROCEDURE spGetNameById2
+    @FirstName NVARCHAR(30) OUTPUT,
+    @Id INT
+AS
+BEGIN
+    SELECT @FirstName = FirstName
+    FROM Employees
+    WHERE Id = @Id
+END
 
-execute spGetNameByIt2 1, @employeeName OUTPUT
 
-print 'name of the employee = ' + @employeeName
-
---return annab ainult int tüüpi väärtust,
---seega ei saa kasutadaa returni, et tagasatada nime
+DECLARE @FirstName NVARCHAR(30)
+EXEC spGetNameById2
+    @Id = 3,
+    @FirstName = @FirstName OUTPUT
+PRINT 'Name of the employee = ' + @FirstName
+--return annab ainult int tüüpi väärtust, 
+--seega ei saa kasutada return-i, et tagastada nime, 
 --mis on nvarchar tüüpi
 
---sisseehitatud string funktsioon
---see konverteerib ASCII tähe väärtuse numbriks
-select ASCII('A')
---kuvab A-tähe
+----sisseehitatud string funktsioonid
+-- see konverteerib ASCII tähe väärtuse numbriks
+select ascii('A')
+-- kuvab A-tähe
 select char(65)
 
 --prindime kogu tähestiku välja A-st Z-ni
 --kasutame while tsüklit
 declare @Start int
-set @Start = 65
-
-while (@Start = 122)
+set @Start = 1
+while (@Start <= 122)
 begin
 	print char(@Start)
 	set @Start = @Start + 1
 end
 
---eemaldame tühjad kohadd sulgudes
-select ltrim('         Hello')
+--eemaldame tühjad kohad sulgudes
+select ltrim('                  Hello')
 
---tühikute eemaldamine sõnas
-select ltrim(FirstName) as FirstName, MiddleName, LastName 
+--tühiukute eemaldamine sõnas
+select ltrim(FirstName) as FirstName, MiddleName, LastName
 from Employees
 
-select rtrim('          Hello           ')
+select RTRIM('            Hello                  ')
 
---keerab kooloni sees olevad andmed vastupidiseks
+--keerba kooloni sees olevad andmed vastupidiseks
 --vastavalt upper ja lower-ga saan muuta märkide suurust
 --reverse funktsioon keerab stringi tagurpidi
-select reverse(upper(ltrim(FirstName))) as FirstName, MiddleName,
-LastName, LOWER(LastName), RTRIM(LTRIM(FirstName)) + ' ' +
+select reverse(upper(ltrim(FirstName))) as FirstName, 
+MiddleName,LOWER(LastName), rtrim(ltrim(FirstName)) + ' ' +
 MiddleName + ' ' + LastName as FullName
 from Employees
 
---left, right, substring
+---left, right, substring
 --left võtab stringi vasakult poolt neli esimest tähte
-select LEFT('ABCDEF', 4)
+select left('ABCDEF', 4)
 --right võtab stringi paremalt poolt neli esimest tähte
-select RIGHT('ABCDEF', 4)
+select right('ABCDEF', 4)
 
---kuvab @tähtmärgi asetust
+--kuvab @tähemärgi asetust
 select charindex('@', 'sara@aaa.com')
 
 --alates viiendast tähemärgist võtab kaks tähte
 select substring('leo@bbb.com', 5, 2)
 
--- @-märgist kuvab kolm tähemärki. Viimase nr saab
---määrata pikkus
-select substring('leo@bbb.com', CHARINDEX('@', 'leo@bbb.com')
+--- @-m'rgist kuvab kolm tähemärki. Viimase nr saab 
+-- määrata pikkust
+select substring('leo@bbb.com', charindex('@', 'leo@bbb.com')
 + 1, 3)
 
---peale @-märki reguleerin tähemärkide pikkuse näitamist
+---peale @-märki reguleerin tähemärkide pikkuse näitamist
 select SUBSTRING('leo@bbb.com', charindex('@', 'leo@bbb.com') + 2,
-len('leo') - CHARINDEX('@', 'pam@bbb.com'))
+len('leo@bbb.com') - CHARINDEX('@', 'leo@bbb.com'))
 
 --saame teada domeeninimed emailides
 --kasutame Person tabelit ja substringi, len ja charindexi
-select SUBSTRING(email, charindex('@', email) + 1,
+select SUBSTRING(Email, charindex('@', Email) + 1,
 len(Email) - charindex('@', Email)) as DomainName
 from Person
+
+select * from Person
 
 alter table Employees
 add Email nvarchar(20)
 
 select * from Employees
 
-update Employees
-set Email = 'Tom@aaa.com'
-where Id = 1
-update Employees
-set Email = 'Pam@bbb.com'
-where Id = 2
-update Employees
-set Email = 'John@aaa.com'
-where Id = 3
-update Employees
-set Email = 'Sam@bbb.com'
-where Id = 4
-update Employees
-set Email = 'Todd@bbb.com'
-where Id = 5
-update Employees
-set Email = 'Ben@ccc.com'
-where Id = 6
-update Employees
-set Email = 'Sara@ccc.com'
-where Id = 7
-update Employees
-set Email = 'Valarie@aaa.com'
-where Id = 8
-update Employees
-set Email = 'James@bbb.com'
-where Id = 9
-update Employees
-set Email = 'Russell@bbb.com'
-where Id = 10
+update Employees set Email = 'Tom@aaa.com' where Id = 1
+update Employees set Email = 'Pam@bbb.com' where Id = 2
+update Employees set Email = 'John@aaa.com' where Id = 3
+update Employees set Email = 'Sam@bbb.com' where Id = 4
+update Employees set Email = 'Todd@bbb.com' where Id = 5
+update Employees set Email = 'Ben@ccc.com' where Id = 6
+update Employees set Email = 'Sara@ccc.com' where Id = 7
+update Employees set Email = 'Valarie@aaa.com' where Id = 8
+update Employees set Email = 'James@bbb.com' where Id = 9
+update Employees set Email = 'Russel@bbb.com' where Id = 10
 
 --lisame *-märgi alates teatud kohast
 select FirstName, LastName,
-	SUBSTRING(Email, 1, 2) + REPLICATE('*', 5) +
+	substring(Email, 1, 2) + replicate('*', 5) +
 	--peale teist tähemärki paneb viis tärni
-	SUBSTRING(Email, CHARINDEX('*', Email), len (Email)
+	substring(Email, charindex('@', Email), len(Email) 
 	- CHARINDEX('@', Email) + 1) as MaskedEmail
-	--kuni @-märgini paneb tärni ja siis jätkab emaili näitamist
-	--on dünaamiline, sest kui email pikkus on erinev,
+	--kuni @-märgini paneb tärnid ja siis jätkab emaili näitamist
+	--on dünaamiline, sest kui emaili pikkus on erinev, 
 	--siis paneb vastavalt tärne
 from Employees
 
---kolm korda näitab stringi olevat väärtust
-select REPLICATE('Hello', 3)
+--kolm korda näitab stringis olevat väärtust
+select replicate('Hello', 3)
 
 --kuidas sisestada tühikut kahe nime vahele
---fasutada funktsiooni
+--kasutada funktsiooni
 select space(5)
 
---võtame tabeli Employees ja kuvame eesnime ja perekonnnanime vahele tühiku
-select FirstName + space(1) + LastName as FullName
-From Employees
+--võtame tabeli Employees ja kuvame eesnime ja perkonnanime vahele tühikut
+select FirstName + space(25) + LastName as FullName from Employees
 
 --PATINDEX
 --sama, mis charindex, aga patindex võimaldab kasutada wildcardi
 --kasutame tabelit Employees ja leiame kõik read, kus emaili lõpus on aaa.com
-select Email, patindex('%aaa.com%', Email) as Position
+select Email, PATINDEX('%@aaa.com', Email) as Position 
 from Employees
-where patindex('%@aaa.com%', Email) > 0
---leian kõik read, kus emaili lõppus on aaa.com või bbb.com
+where PATINDEX('%@aaa.com', Email) > 0
+--leiame kõik read, kus emaili lõpus on aaa.com või bbb.com
 
-
---asendame emaili lõpus olevat demeeninimed 
+--asendame emaili lõpus olevat domeeninimed
 --.com asemel .net-iga, kasutage replace funktsiooni
-select replace(Email, '.com', '.net')
+select FirstName, LastName, Email,
+REPLACE(Email, '.com', '.net') as NewEmail
 from Employees
 
---soovin asendada peale esimest märki olevad tähed viie tärniga
+--soovin asendada peale esimest märkki olevad tähed viie tärniga
 select FirstName, LastName, Email,
 	stuff(Email, 2, 3, '*****') as StuffedEmail
 from Employees
 
---ajaga seotud andmetüübid
+---ajaga seotud andmetüübid
 create table DateTest
 (
 c_time time,
-c_date time,
+c_date date,
 c_smalldatetime smalldatetime,
 c_datetime datetime,
 c_datetime2 datetime2,
@@ -888,56 +880,63 @@ insert into DateTest
 values (getdate(), getdate(), getdate(), getdate(), getdate(), getdate())
 select * from DateTest
 
-update DateTest set c_datetimeoffset = '2026-04-07 17:14:02.8600000 +02:00'
-where c_datetimeoffset = '2026-04-07 17:14:00 +02:00'
+update DateTest set c_datetimeoffset = '2026-04-07 12:00:05.0566667 +02:00'
+where c_datetimeoffset = '2026-04-07 17:13:05.0566667 +00:00'
 
-select CURRENT_TIMESTAMP, 'CURRENT_TIMESTAMP' -- aja päring
-select SYSDATETIME(), 'SYSDATETIME()' -- veel täpsem aja päring
-select SYSDATETIMEOFFSET(), 'SYSDATETIMEOFFSET()' --tõpsem aja ja ajavööndi päring
+select CURRENT_TIMESTAMP, 'CURRENT_TIMESTAMP' --aja päring
+select SYSDATETIME(), 'SYSDATETIME' --veel täpsem aja päring
+select SYSDATETIMEOFFSET(), 'SYSDATETIMEOFFSET' --täpne aja ja ajavööndi päring
 select GETUTCDATE(), 'GETUTCDATE' --UTC aja päring
 
-select isdate('asdasd') --tagastab 0, sest see on kehtiv kuupäev
+select isdate('asdasd') --tagastab 0, sest see ei ole kehtiv kuupäev
 select isdate(getdate()) --tagastab 1, sest on kp
-select isdate('2026-04-07 17:14:02.8600000') --tagastab 0, kuna max  3 koma kohta
-select isdate('2026-04-07 17:14:02.860') --tagastab 1
+select isdate('2026-04-07 12:00:05.0566667') --tagastab 0 kuna max kolm komakohta v]ib olla
+select isdate('2026-04-07 12:00:05.056') --tagastab 1
 select day(getdate()) --annab tänase päeva nr
-select day('01/30/2026') --annab stringis oleva kp ja järjestus peab oleva õige
+select day('03/29/2026') --annab stringis oleva kp ja järjestus peab olema õige
 select month(getdate()) --annab jooksva kuu nr
-select month('03/29/2026') --annab stringis oleva kuu
+select month('03/29/2026') -- annab stringis oleva kuu
 select year(getdate()) -- annab jooksva aasta nr
-select year('03/29/2026') --annab stringis oleva aasta nr
+select year('03/29/2026') -- annab stringis oleva aasta nr
 
---14.04.2026 tund
+--rida 841
+--tund 6
+--14.04.26
 
-select DATENAME(day, '2026-04-07 17:14:02.860') --annab stringis oleva päeva nime
-select DATENAME(weekday, '2026-04-07 17:14:02.860') --annam stringis oleva päeva nime
-select DATENAME(MONTH, '2026-04-07 17:14:02.860') --annab stringis oleva kuu nime
+select datename(day, '2026-04-07 12:00:05.056') --annab stringis oleva päeva nime
+select datename(weekday, '2026-04-07 12:00:05.056') --annab stringis oleva päeva nime
+select datename(month, '2026-04-07 12:00:05.056') -- annab stringis oleva kuu nime
 
-create table EmployeesWithDates 
+create table EmployeesWithDates
 (
 	Id nvarchar(2),
 	Name nvarchar(20),
 	DateOfBirth datetime
 )
 
-insert into EmployeesWithDates(Id, Name, DateOfBirth)
-values (1, 'Sam', '1980-12-30 00:00:00.000'),
-(2, 'Pam', '1982-09-01 12:02:36.260'),
-(3, 'John', '1985-08-22 12:03:30.370'),
-(4, 'Sara', '1979-11-29 12:59:30.670')
+INSERT INTO EmployeesWithDates  (Id, Name, DateOfBirth)  
+VALUES (1, 'Sam', '1980-12-30 00:00:00.000');
+INSERT INTO EmployeesWithDates  (Id, Name, DateOfBirth)  
+VALUES (2, 'Pam', '1982-09-01 12:02:36.260');
+INSERT INTO EmployeesWithDates  (Id, Name, DateOfBirth)  
+VALUES (3, 'John', '1985-08-22 12:03:30.370');
+INSERT INTO EmployeesWithDates  (Id, Name, DateOfBirth)  
+VALUES (4, 'Sara', '1979-11-29 12:59:30.670');
 
 --kuidas võtta ühest veerust andmeid ja selle abil luua uued veerud
-
-select Name, DateOfBirth, datename(weekday, DateOfBirth) as Day, datename(day, DateOfBirth) as MonthNumber, datename(month, DateOfBirth) as MonthName, datename(year, DateOfBirth) as Year
+select Name, DateOfBirth, Datename(weekday, DateOfBirth) as [Day],
+	   MONTH(DateOfBirth) as [Month], 
+	   DATENAME(month, DateOfBirth) as [MonthName],
+	   YEAR(DateOfBirth) as [Year]
 from EmployeesWithDates
 
-select datepart(weekday, '2026-04-07 17:14:02.860') --annab stringis oleva päeva nt, kus 1 on pühapäev
-select datepart(month, '2026-04-07 17:14:02.860') --annab stringis oleva kuu nr
-select datename(week, '2026-04-07 17:14:02.860')
-select dateadd(day, 20, '2026-04-07 17:14:02.860') --annab stringis oleva kuupäeva mis on 20 päeva pärast
-select dateadd(day, -20, '2026-04-07 17:14:02.860')--annab stringis oleva kuupäeva mis on 20 päeva enne
-select datediff(MONTH, '04/30/2025', '01/31/2026')
-select datediff(YEAR, '04/30/2025', '01/31/2026')
+select DATEPART(weekday, '2026-04-07 12:00:05.056') -- annab stringis oleva päeva nr, kus 1 on pühapäev
+select DATEPART(month, '2026-04-07 12:00:05.056') -- annab stringis oleva kuu nr
+select DATENAME(week, '2026-04-07 12:00:05.056')
+select dateadd(day, 20, '2026-04-07 12:00:05.056') -- annab stringis oleva kuupäeva, mis on 20 päeva pärast
+select dateadd(day, -20, '2026-04-07 12:00:05.056') -- annab stringis oleva kuupäeva, mis on 20 päeva enne
+select datediff(month, '04/30/2025', '01/31/2026')
+select datediff(year, '04/30/2025', '01/31/2026')
 
 create function fnComputeAge(@DOB datetime)
 returns nvarchar(50)
@@ -961,8 +960,8 @@ as begin
 	return @Age
 end
 
---saame vanuse välja arvatada, kui kasutame fnComputeAge funktsiooni
-select Name, DateOfBirth, dbo.fnComputeAge(DateOfBirth) as Age
+--saame vanuse välja arvutada, kui kasutame fnComputeAge funktsiooni
+select Name, DateOfBirth, dbo.fnComputeAge(DateOfBirth) as Age 
 from EmployeesWithDates
 
 --kui kasutame seda funktsiooni, siis saame teada tänase päeva vahet
@@ -972,60 +971,59 @@ select dbo.fnComputeAge('03/23/2008')
 --nr peale DOB muutujat näitab, 
 --et missugusena järjestuses me tahame näidata veeru sisu
 select Id, Name, DateOfBirth,
-convert(nvarchar, DateOfBirth, 126) as ConvertedDOB
+convert(nvarchar,DateOfBirth, 109) as ConvertedDOB
 from EmployeesWithDates
 
---
 select Id, Name, Name + ' - ' + cast(Id as nvarchar) as [Name-Id]
 from EmployeesWithDates
 
-select cast(getdate() as date) -- tänane kp
-select CONVERT(date, getdate()) --tänane kp
+select cast(getdate() as date) --tänane kp
+select convert(date, getdate()) --tänane kp
 
---matemaatilised funktsioonid
+---matemaatilised funktsioonid
 select abs(-101.5) --absoluutväärtus, tagastab 101.5
 select ceiling(101.5) --tagastab 102, ümardab üles
-select CEILING(-101.5) --ümardab üles negatiivsema nr poole
-select floor(101.5) --ümardab alla
-select floor(-101.5) --ümardab alla negatiivsema nr poole
-select POWER(2, 4) --tagastab 16, 2 astmes 4
-select SQUARE(5) --korrutab iseendaga
-select SQRT(25) --võtab arvu ja leiab selle ruutjuure
+select CEILING(-101.5) --tagastab -101, ümardab üles positiivsema nr poole
+select floor(101.5) --tagastab 101, ümardab alla
+select floor(-101.5) --tagastab -102, ümardab alla negatiivsema nr poole 
+select power(2, 4) -- 2 astmel 4 e 2x2x2x2, esimene nr on alus
+select SQUARE(5) -- tagastab 25, võtab arvu ja korrutab iseendaga
+select sqrt(25) --tagastab 5, võtab arvu ja leiab selle ruutjuure
 
-select rand() -- tagastab suvalise nr 0 - 1
---oleks vaja, et iga kord annab rand meile ühe täisarvu 1 kuni 100
-select round(rand()*(100 - 1) + 1, 0)
-select floor(rand() * 100 + 1)
+select rand() --tagastab juhusliku arvu vahemikus 0 kuni 1
+--oleks vaja, et iga kord annab rand meile ühe täisarvu vahemikus 1 kuni 100
+select ceiling (rand() * 100)
 
---annab juhusliku nr vahemikus 1 kuni 1000
---ja teeb seda 10 korda, et näha erinevaid nr-d
+--annab juhuslik number vahemikus 1 kuni 1000
+--ja teeb seda 10 korda, et näha erinevaid numbreid
 declare @counter int
 set @counter = 1
 while (@counter <= 10)
 begin
-	select ceiling (rand() * 1000)
+	print ceiling (rand() * 1000)
 	set @counter = @counter + 1
 end
 
-select round(850.556, 2)
-select round(850.556, 2, 1)
-
-select round(850.556, 1) --ümardab 850.556 ühe komakohani, tagastab 850.6
-select round(850.556, 1, 1)
-
-select round(850.556, -2) --ümardab 850.556 sadade kaupa, tagastab 900
-select round(850.556, -1) --ümardab 850.556 kümnete kaupa, tagastab 800
+select ROUND(850.556, 2) --ümardab 850.556 kahe komakohani, tagastab 850.56
+select ROUND(850.556, 2, 1) --ümardab 850.556 kahe komakohani, 
+--aga kui kolmas komakoht on 5 või suurem, siis ümardab alla, 
+--tagastab 850.550
+select ROUND(850.556, 1) --ümardab 850.556 ühe komakohani, tagastab 850.6
+select ROUND(850.556, 1, 1)--ümardab 850.556 ühe komakohani, 
+--aga kui kolmas komakoht on 5 või suurem, siis ümardab alla, tagastab 850.5
+select ROUND(850.556, -2)--ümardab 850.556 sadade kaupa, tagastab 900
+select ROUND(850.556, -1)--ümardab 850.556 kümnete kaupa, tagastab 850
 
 create function dbo.CalculateAge (@DOB date)
 returns int
 as begin
 declare @Age int
 
-set @Age = datediff(year, @DOB, getdate()) - 
+set @Age = datediff(year, @DOB, getdate()) -
 	case 
 		when (month(@DOB) > month(getdate())) or
-			(month(@DOB) = month(getdate()) and day(@DOB) > day(getdate()))
-		then 1
+			 (month(@DOB) = month(getdate()) and day(@DOB) > day(getdate())) 
+		then 1 
 		else 0
 		end
 	return @Age
@@ -1033,36 +1031,47 @@ end
 -----
 execute CalculateAge '10/25/1980'
 
---arvutab välja, kui vana on isik ja võtab arvesse,
+--arvutab v'lja, kui vana on isik ja v]tab arvesse, 
 --kas isiku sünnipäev on juba sel aastal olnud või mitte
 --antud juhul näitab, kes on üle 40 aasta vanad
-select Id, Name, dbo.CalculateAge(DateOfBirth) as Age
-from EmployeesWithDates
+select Id, dbo.CalculateAge(DateOfBirth) as Age from EmployeesWithDates
 where dbo.CalculateAge(DateOfBirth) > 40
 
---inline table valued functions
---teha EmployeesWithDates tablisse
---uus veerg nimega DepartmentId int
---ja reine veerg on Gender nvarchar(10)
-alter table EmployeesWithDates
-add DepartmentId int,
-Gender nvarchar(10)
+---inline table valued functions
+--teha EmployeesWithDates tabelisse
+--uus veerg nimega DepartmentId int,
+-- ja teine veerg on Gender nvarchar(10)
+
+update EmployeesWithDates set Gender = 'Male', DepartmentId = 1
+where Id = 1
+update EmployeesWithDates set Gender = 'Female', DepartmentId = 2
+where Id = 2
+update EmployeesWithDates set Gender = 'Male', DepartmentId = 1
+where Id = 3
+update EmployeesWithDates set Gender = 'Female', DepartmentId = 3
+where Id = 4
+insert into EmployeesWithDates (Id, Name, DateOfBirth, DepartmentId, Gender)
+values (5, 'Todd', '1978-11-29 12:59:30.670', 1, 'Male')
+
+select * from EmployeesWithDates
 
 --scalar function e skaleeritav funktsioon annab mingis vahemikus olevaid
 --väärtusi, aga inline table valued function tagastab tabeli
---ja seal ei kasutata begin ja endi vehele kirjutamist
+--ja seal ei kasutata begin ja endi vahele kirjutamist, 
 --vaid lihtsalt kirjutad selecti
 create function fn_EmployeesByGender(@Gender nvarchar(10))
 returns table
 as
-return (select Id, Name, DateOfBirth, DepartmentId, Gender from EmployeesWithDates where Gender = @Gender)
+return (select Id, Name, DateOfBirth, DepartmentId, Gender
+		from EmployeesWithDates
+		where Gender = @Gender)
 
 --soovime vaadata kõiki naisi EmployeesWithDates tabelist
 select * from fn_EmployeesByGender('Female')
 
 --soovin ainult näha Pam ja kasutan funktsiooni fn_EmployeesByGender
 select * from fn_EmployeesByGender('Female')
-where name = 'Pam'
+where Name = 'Pam'
 
 --kahest erinevast tabelist andmete võtmine ja koos kuvamine
 --esimene on funktsioon ja teine on Department tabel
@@ -1070,14 +1079,15 @@ select Name, Gender, DepartmentName
 from fn_EmployeesByGender('Male') E
 join Department D on D.Id = E.DepartmentId
 
---inline function
+--inline funktsioon
 create function fn_GetEmployees()
 returns table as
 return (select Id, Name, cast(DateOfBirth as date)
 		as DOB
 		from EmployeesWithDates)
 
-select * from fn_EmployeesByGender
+select * from fn_GetEmployees()
+
 
 --multi statement table valued function
 create function fn_MS_GetEmployees()
@@ -1094,26 +1104,29 @@ select * from fn_MS_GetEmployees()
 --inline tabeli funktsioonid on paremini töötamas 
 --kuna käsitletakse vaatena
 --multi statement table valued funktsioonid on nagu tavalised funktsioonid,
---pm on tegemist stored procedurega ja see võib olla aeglasem
+--pm on tegemist stored procedurega ja see võib olla aeglasem, 
 --sest see ei saa kasutada vaate optimeerimist e kulutab rohkem ressurssi
-
 select * from EmployeesWithDates
-update fn_GetEmployees() set Name = 'Sam1' where Id = 4
+update fn_GetEmployees() set Name = 'Sara' where Id = 4 --saab muuta andmeid
 select * from EmployeesWithDates
-
---ei saa muuta andmeid multistate table valued funktsioonis,
+update fn_MS_GetEmployees() set Name = 'Sara' where Id = 4 
+--ei saa muuta andmeid multistate table valued funktsioonis, 
 --sest see on nagu stored procedure
 
---determnistic vs non-deterministic functions
-select COUNT(*) from EmployeesWithDates
---kõik tehtemärgid on deterministic, sest nad annavad alati sama tulemuse, kui sisend on sama
---kui sisend on sama. Selle alla kuuluvad veel sum, avg, min, max, count
-select SQUARE(3)
+--rida 1045
+--tund 7
+--21.04.26
 
---non ettemääratud funktsioonid võivad anda erinevaid tulemusi
-select GETDATE() --kuna see annab alati erineva tulemuse, siis on see non-deterministic
+--determnistic vs nondeterministic functions
+select count(*) from EmployeesWithDates
+--kõik tehtemärgid on deterministic, sest nad annavad alati sama tulemuse, 
+--kui sisend on sama. Selle alla kuuluvad veel sum, avg, min, max, count
+select square(3)
+
+--mitte ettemääratud funktsioonid võivad anda erinevaid tulemusi
+select getdate() --kuna see annab alati jooksva aja, siis on nondeterministic
 select CURRENT_TIMESTAMP
-select RAND()
+select rand()
 
 --loome funktsiooni
 create function fn_GetNameById(@id int)
@@ -1122,12 +1135,12 @@ as begin
 	return (select Name from EmployeesWithDates where Id = @id)
 end
 
---kuidas saab kasutdata fn_GetNameById funktsiooni.
-select dbo.fn_GetNameById(1) as EmployeeName
---sellega saame näha funktsiooni sisu.
+--kuidas saab kasutada fn_GetNameById funktsiooni
+select dbo.fn_GetNameById(3)
+--sellega saab näha funktsiooni sisu
 sp_helptext fn_GetNameById
 
---muuta funktsiooni fn_GetGameById ja krüpteerida see ära,
+--muuta funktsiooni fn_GetNameById ja krüpteerida see ära, 
 --et keegi teine peale sinu ei saaks seda muuta
 alter function fn_GetNameById(@id int)
 returns nvarchar(20)
@@ -1135,9 +1148,9 @@ with encryption
 as begin
 	return (select Name from EmployeesWithDates where Id = @id)
 end
-
---nüüd kui proovime vaadata fn_GetNameById funktsiooni sisu, siis ei näe seda, sest see on krüpteeritud
+--nüüd kui tahame näha fn_GetNameById funktsiooni sisu, siis ei saa
 sp_helptext fn_GetNameById
+
 
 create function fn_GetEmployeeNameById(@id int)
 returns nvarchar(20)
@@ -1145,132 +1158,137 @@ with schemabinding
 as begin
 	return (select Name from EmployeesWithDates where Id = @id)
 end
---tuleb veatäide
---Cannot schema bind function 'fn_GetEmployeeNameById' because name 'EmployeesWithDates' is invalid for 
---schema binding. Names must be in two-part format and an object cannot reference itself.
+--tuleb veateade
+--Cannot schema bind function 'fn_GetEmployeeNameById' 
+--because name 'EmployeesWithDates' is invalid for schema binding. 
+--Names must be in two-part format and an object cannot 
+--reference itself.
 
---nüüd on korras variant.
-create function dbo.fn_GetEmployeeNameById(@id int)
+--nüüd on korras variant
+create function dbo.fn_GetEmployeeNameById123(@id int)
 returns nvarchar(20)
-with schemabinding
+with encryption, schemabinding
 as begin
 	return (select Name from dbo.EmployeesWithDates where Id = @id)
 end
+
 --mis on schemabinding?
 --schemabinding seob päringus oleva tabeli ära ja ei luba seda muuta
---mis see annab meile?
---see annab meile jõudluse eelise, sest SQL Server teab, et
---see tabel ei muutu veergude osas.
+--Mis see annab meile?
+--see annab meile jõudluse eelise, sest SQL Server teab, et 
+--see tabel ei muutu veergude osas
 
---ei saa tabelit kustutada, kui see on seotud schemabindinguga
+--ei saa tabelit kustutada, kui sellel on schemabindinguga funktsioon
 drop table EmployeesWithDates
-
-create function dbo.fn_GetEmployeeNameById123(@id int)
-returns nvarchar(20)
-with encryption,
-schemabinding
-as begin
-return (select Name from dbo.EmployeesWithDates where Id = @id)
-end
 
 --temporary tables
 --need on tabelid, mis on loodud ajutiselt ja kustutatakse automaatselt
 --neid on kahte tüüpi: local temporary tables ja global temporary tables
---#-ga algavad loacal temporary tables 
---ja ##-ga algavad global temporary tables
+--#-ga algavad local temporary tables ja 
+--##-ga algavad global temporary tables
 
 create table #PersonDetails(Id int, Name nvarchar(20))
 --kuhu tabel tekkis?
-insert into #PersonDetails values (1, 'Mike')
-insert into #PersonDetails values (2, 'Max')
-insert into #PersonDetails values (3, 'Uhura')
+insert into #PersonDetails values(1, 'Mike')
+insert into #PersonDetails values(2, 'Max')
+insert into #PersonDetails values(3, 'Uhura')
 go
 select * from #PersonDetails
 
 --saame otsida seda objekti ülesse
 select * from sysobjects
-where Name like '[dbo].[#PersonDetails______________________________________________________________________________________________________000000000004]'
+where Name like 'dbo.#PersonDetails______________________________________________________________________________________________________000000000007%'
 
 
---kustutame temp tabeli
+--kustutame tabeli ära
 drop table #PersonDetails
 
---teeme stored procedure, mis loob temp tabeli ja täidab selle andmetega
+--teeme stored procedure, mis loob 
+--local temporary table-i ja täidab selle andmetega
 create proc spCreateLocalTempTable
 as begin
 create table #PersonDetails(Id int, Name nvarchar(20))
 
-insert into #PersonDetails values (1, 'Mike')
-insert into #PersonDetails values (2, 'Max')
-insert into #PersonDetails values (3, 'Uhura')
+insert into #PersonDetails values(1, 'Mike')
+insert into #PersonDetails values(2, 'Max')
+insert into #PersonDetails values(3, 'Uhura')
 
 select * from #PersonDetails
 end
-
+---
 exec spCreateLocalTempTable
 
 select * from sysobjects
-where Name like '%'
+where Name like '[dbo].[#A895AD85]%'
 
---global table
+---globaalse tabeli loomine
 create table ##GlobalPersonDetails(Id int, Name nvarchar(20))
---mis on globaalse ja lokaalse temp tabeli vahe?
---Lokaalne temp tabel on nähtav ainult selle sessiooni sees, kus see on loodud, 
---ja kustutatakse automaatselt, kui sessioon lõpeb. 
---Globaalne temp tabel on nähtav kõigile sessioonidele ja kustutatakse alles siis, 
---kui kõik sessioonid, mis sellele tabelile viitavad, on lõppenud.
+--mis on globaalse ja lokaalse tabeli erinevus?
+--globaalse tabeli saab näha ja kasutada kõigis sessioonides,
+--lokaalse tabeli saab näha ja kasutada ainult selles sessioonis, 
+--kus see on loodud
 
-
---Index
-create table EmployeesWithSalary
+--index
+create table EmployeeWithSalary
 (
-	Id int primary key,
-	Name nvarchar(25),
-	Salary int,
-	Gender nvarchar(10)
+Id int primary key,
+Name nvarchar(25),
+Salary int,
+Gender nvarchar(10)
 )
 
-insert into EmployeesWithSalary values (1, 'Sam', 2500, 'Male')
-insert into EmployeesWithSalary values (2, 'Pam', 6500, 'Female')
-insert into EmployeesWithSalary values (3, 'John', 4500, 'Male')
-insert into EmployeesWithSalary values (4, 'Sara', 5500, 'Female')
-insert into EmployeesWithSalary values (5, 'Todd', 3100, 'Male')
+insert into EmployeeWithSalary values(1, 'Sam', 2500, 'Male')
+insert into EmployeeWithSalary values(2, 'Pam', 6500, 'Female')
+insert into EmployeeWithSalary values(3, 'John', 4500, 'Male')
+insert into EmployeeWithSalary values(4, 'Sara', 5500, 'Female')
+insert into EmployeeWithSalary values(5, 'Todd', 3100, 'Male')
 
-select * from EmployeesWithSalary
+select * from EmployeeWithSalary
 
-select * from EmployeesWithSalary
-where Salary > 5000 and Salary < 7000
 
---loome indeksi, mis asetab palga kahanevasse järjestusse.
-create index IX_Employee_Salary
-on EmployeesWithSalary(Salary desc)
-
-create index IX_Employee_Salary123
-on EmployeesWithSalary(Salary)
+select * from EmployeeWithSalary
 where Salary > 4000 and Salary < 7000
 
+--loome indeksi, mis asetab palga kahanevasse järjestusse
+create index IX_Employee_Salary
+on EmployeeWithSalary(Salary desc)
+
+create index IX_Employee_Salary123
+on EmployeeWithSalary(Salary)
+where Salary > 4000 and Salary < 7000
+
+SELECT *
+FROM EmployeeWithSalary WITH (INDEX(IX_Employee_Salary123))
+WHERE Salary > 4000 AND Salary < 7000;
 --proovige nüüd pärida tabelit EmployeeWithSalary
 -- ja kasutada index-t IX_Employee_Salary
-select * from EmployeesWithSalary with(index(IX_Employee_Salary))
-select * from EmployeesWithSalary with(index(IX_Employee_Salary123))
+select * from EmployeeWithSalary with (index (IX_Employee_Salary))
 
 --indeksi kustutamine
-drop index IX_Employee_Salary123 on EmployeesWithSalary
-drop index EmployeesWithSalary.IX_Employee_Salary
+drop index IX_Employee_Salary123 on EmployeeWithSalary
+drop index EmployeeWithSalary.IX_Employee_Salary
 
-set statistics profile on
+SET STATISTICS PROFILE ON;
+
+SELECT Name, Salary
+FROM EmployeeWithSalary
+WHERE Salary > 1000 AND Salary < 5000;
+
+SET STATISTICS PROFILE OFF;
+---
+SET SHOWPLAN_ALL ON;
 go
-select Name, Salary
-from EmployeesWithSalary
-where Salary > 1000 and Salary < 5000
+SELECT Name, Salary
+FROM EmployeeWithSalary
+WHERE Salary > 1000 AND Salary < 5000;
 go
-set showplan_all off
+SET SHOWPLAN_ALL OFF;
 go
 
 
-----indeksi tüübid:
---1. Klastrite olevad
---2. Mitteklastrite olevad
+---- indeksi tüübid:
+--1. Klastrites olevad
+--2. Mitte-klastris olevad
 --3. Unikaalsed
 --4. Filtreeritud
 --5. XML
@@ -1280,56 +1298,59 @@ go
 --9. Veergude indeksid
 --10. Välja arvatud veergudega indeksid
 
--- Klastris olev indeks määrab ära tabelis oleva füüsilise järjestuse
---ja selle tulemusel saab tabelis olla ainult üks klastrite olev indeks
---kui lisad primaalvõtme, siis luuakse automaatselt klastrite olev indeks
+-- klastris olev indeks määrab ära tabelis oleva füüsilise järjestuse 
+-- ja selle tulemusel saab tabelis olla ainult üks klastris olev indeks
+--kui lisad primaarvõtme, siis luuakse automaatselt klastris olev indeks
 
 create table EmployeeCity
 (
-	Id int primary key,
-	Name nvarchar(25),
-	Salary int,
-	Gender nvarchar(10),
-	City nvarchar(20)
+Id int primary key,
+Name nvarchar(25),
+Salary int,
+Gender nvarchar(10),
+City nvarchar(20)
 )
 
-insert into EmployeeCity values (3, 'John', 4500, 'Male', 'New York')
-insert into EmployeeCity values (1, 'Sam', 2500, 'Male', 'London')
-insert into EmployeeCity values (4, 'Sara', 5500, 'Female', 'Tokyo')
-insert into EmployeeCity values (5, 'Todd', 3100, 'Male', 'Toronto')
-insert into EmployeeCity values (2, 'Pam', 6500, 'Male', 'Sydney')
+-- andmete õige järjestuse loovad klastris olevad indeksid 
+-- ja kasutab selleks Id nr-t
+-- põhjus, miks antud juhul kasutab Id-d, tuleneb primaarvõtmest
+insert into EmployeeCity values(3, 'John', 4500, 'Male', 'New York')
+insert into EmployeeCity values(1, 'Sam', 2500, 'Male', 'London')
+insert into EmployeeCity values(4, 'Sara', 5500, 'Female', 'Tokyo')
+insert into EmployeeCity values(5, 'Todd', 3100, 'Male', 'Toronto')
+insert into EmployeeCity values(2, 'Pam', 6500, 'Male', 'Sydney')
 
-select * from EmployeeCity
+SELECT * FROM EmployeeCity
 
---Klastrite olevad indeksid dikteerivad kuidas säilitatud andmete järjestuste tabelis
---ja seda saab klastrite puhul olla ainult üks
-Create clustered index IX_EmployeeCity_Name
+-- klastris olevad indeksid dikteerivad säilitatud andmete järjestuse tabelis 
+-- ja seda saab klastrite puhul olla ainult üks
+CREATE clustered index IX_EmployeeCity_Name
 on EmployeeCity(Name)
---annab veteate, et tabelis saab olla ainult üks klastris olev index
---kui soovid, uut indeksit luua, siis kustuta olemasolev
+--- annab veateate, et tabelis saab olla ainult üks klastris olev indeks
+--- kui soovid, uut indeksit luua, siis kustuta olemasolev
 
---saame luua ainult ühe klastris oleva indeksi tabeli peale
---klastris olev indeks in analoogne telefoni nr-le
---enne seda päringut kustutasime primaalvõtme indeksi ära
-select * from EmployeeCity
+--- saame luua ainult ühe klastris oleva indeksi tabeli peale
+--- klastris olev indeks on analoogne telefoni nr-le
+--- enne seda päringut kustutasime primaarvõtme indeksi ära
+SELECT * FROM EmployeeCity
 
 --mitte klastris olev indeks
-create nonclustered index IX_EmployeeCity_Name
+create nonclustered index IX_EmployeeCity_Name123
 on EmployeeCity(Name)
 
 exec sp_helpindex EmployeeCity
 
-select * from EmployeeCity
+SELECT * FROM EmployeeCity
 
---erinevused kahe indeksi vahel
---1. ainult üks klastris olev indeks saab olla tabeli peale,
---mitte klastris olevaid indekseid võib olla mitu
---2. klastris olevad indeksid on kiiremad kuna indeks peab
---tagasi viitma tabelile
---Juhul, kui selekteeritud veerg ei ole olemas indeksis
---3. Klastris olev indeks määratleb ära tabeli ridade slavestusjärjestuse
---ja ei nõua kettal lisa ruumi. Samas mitte klastris olevad indeksid on 
---salvestatud tabelist eraldi ja nõuab lisa ruumi
+--- erinevused kahe indeksi vahel
+--- 1. ainult üks klastris olev indeks saab olla tabeli peale, 
+--- mitte-klastris olevaid indekseid saab olla mitu
+--- 2. klastris olevad indeksid on kiiremad kuna indeks peab 
+--- tagasi viitama tabelile
+--- Juhul, kui selekteeritud veerg ei ole olemas indeksis
+--- 3. Klastris olev indeks määratleb ära tabeli ridade slavestusjärjestuse
+--- ja ei nõua kettal lisa ruumi. Samas mitte klastris olevad indeksid on 
+--- salvestatud tabelist eraldi ja nõuab lisa ruumi
 
 create table EmployeeFirstName
 (
@@ -1343,19 +1364,19 @@ create table EmployeeFirstName
 
 exec sp_helpindex EmployeeFirstName
 
---sisestame andmed tabelisse
-insert into EmployeeFirstName
+--sisestame andmed tabelisse ja neid ei saa sisestada
+insert into EmployeeFirstName 
 values
 (1, 'Mike', 'Sandoz', 4500, 'Male', 'New York'),
 (1, 'John', 'Menco', 2500, 'Male', 'London')
 
 --kustutame indeksi ära
-drop index EmployeeFirstName.PK__Employee__3214EC07E6B8F0B9
---kui käivitad ülevalpool oleva koodi, siis tuleb veateade
---et SQL server kasutab UNIQUE indeksit jõustamaks väärtuste unikaalsust ja 
--- koodiga Unikaalseid Indekseid ei saa kustutada, aga käsitsi saab
+drop index EmployeeFirstName.PK__Employee__3214EC078089B561
+--- kui käivitad ülevalpool oleva koodi, siis tuleb veateade
+--- et SQL server kasutab UNIQUE indeksit jõustamaks väärtuste unikaalsust ja primaarvõtit
+--- koodiga Unikaalseid Indekseid ei saa kustutada, aga käsitsi saab
 
-insert into EmployeeFirstName
+insert into EmployeeFirstName 
 values
 (1, 'Mike', 'Sandoz', 4500, 'Male', 'New York'),
 (1, 'John', 'Menco', 2500, 'Male', 'London')
@@ -1363,9 +1384,13 @@ values
 create unique nonclustered index IX_Employee_FirstName_FirstName
 on EmployeeFirstName(FirstName, LastName)
 
+insert into EmployeeFirstName 
+values
 (1, 'Mike', 'Sandoz', 4500, 'Male', 'New York'),
-(1, 'John', 'Menco', 2500, 'Male', 'London')
-
+(2, 'John', 'Menco', 2500, 'Male', 'London')
+-- alguses annab veateate, et Mike Sandoz-st on kaks korda
+-- ei saa lisada mitte-klastris olevat indeksit, kui ei ole unikaalseid andmeid
+--- kustutame tabeli ja sisestame andmed uuesti
 
 create table EmployeeFirstName
 (
@@ -1377,30 +1402,38 @@ create table EmployeeFirstName
 	City nvarchar(20)
 )
 
-insert into EmployeeFirstName
+insert into EmployeeFirstName 
 values
 (1, 'Mike', 'Sandoz', 4500, 'Male', 'New York'),
-(1, 'John', 'Menco', 2500, 'Male', 'London')
+(2, 'John', 'Menco', 2500, 'Male', 'London')
 
 --lisame uue unikaalse piirangu
 alter table EmployeeFirstName
 add constraint UQ_Employee_FirstName_City
 unique nonclustered(City)
 
+insert into EmployeeFirstName 
+values
+(3, 'John', 'Menco', 4500, 'Male', 'London')
 
---1. vaikimisi primaarvõti loob unikaalse klastris oleva indeksi,
---samas unikaalne piirang
---loob unikaalse mitte-klastris oleva indeksi 
---2. Unikaalset indeksit või piirangut ei saa luua olemasolevasse
---tabelisse, kui tabel
---juba sisaldab väärtusi võtmeveerus
---3. Vaikimisi korduvaid väärtuseid ei ole veerus lubatud,
---kui peaks olema unikaalne indeks või piirang. Nt, kui tahad
---sisestada 10 rida andmeid, 
---millest 5 sisaldavad korduvaid andmeid, siis kõik 10 lükatakse taagasi
---kui soovin ainult 5
---rea tagasi lükkamist ja ülejäänud 5 rea sisestamist, siis'
---selleks kasutatakse IGNORE_DUP_KEY
+--rida 1334
+--tund 8
+--28.04.26
+
+---
+-- 1.Vaikimisi primaarvõti loob unikaalse klastris oleva indeksi, 
+-- samas unikaalne piirang
+-- loob unikaalse mitte-klastris oleva indeksi
+-- 2. Unikaalset indeksit või piirangut ei saa luua olemasolevasse 
+-- tabelisse, kui tabel 
+-- juba sisaldab väärtusi võtmeveerus
+-- 3. Vaikimisi korduvaid väärtusied ei ole veerus lubatud,
+-- kui peaks olema unikaalne indeks või piirang. Nt, kui tahad 
+-- sisestada 10 rida andmeid,
+-- millest 5 sisaldavad korduviad andmeid, siis kõik 10 lükatakse tagasi. 
+-- Kui soovin ainult 5
+-- rea tagasi lükkamist ja ülejäänud 5 rea sisestamist, siis 
+-- selleks kasutatakse IGNORE_DUP_KEY
 
 --koodinäide
 create unique index IX_EmployeeFirstName
@@ -1409,73 +1442,75 @@ with ignore_dup_key
 
 select * from EmployeeFirstName
 
-insert into EmployeeFirstName
+insert into EmployeeFirstName 
 values
 (3, 'John', 'Menco', 2345, 'Male', 'London'),
 (4, 'John', 'Menco', 1234, 'Male', 'London1'),
 (4, 'John', 'Menco', 3456, 'Male', 'London1')
--- enne ignore käsku oleks kõik kolm rida tagasi lükatud, aga
--- nüüd läks keskmine rida läbi kuna linna nimi oli unikaalne
+--- enne ignore käsku oleks kõik kolm rida tagasi lükatud, aga
+--- nüüd läks keskmine rida läbi kuna linna nimi oli unikaalne
 
--- view
--- view on salvestatud SQL-i päring. Saab käsitleda ka virtuaalse tabelina
+--- view 
+--- view on salvestatud SQL-i päring. Saab käsitleda ka virtuaalse tabelina
 
 select FirstName, Salary, Gender, DepartmentName
 from Employees
 join Department
-on Employees.DepartmentId = Department.id
+on Employees.DepartmentId = Department.Id
 
---loome view 
+
+-- loome view
 create view vEmployeesByDepartment
 as
-select FirstName, Salary, GenderId, DepartmentName
+select FirstName, Salary, Gender, DepartmentName
 from Employees
 join Department
-on Employees.DepartmentId = Department.id
+on Employees.DepartmentId = Department.Id
 
---view päring esile kutsumine
+--view p'ringu esile kutsumine
 select * from vEmployeesByDepartment
 
--- view ei salvesta andmeid vaikimisi 
+-- view ei salvesta andmeid vaikimisi
 -- seda tasub võtta, kui salvestatud virtuaalse tabelina
 
---milleks vaja:
---saab kautada andmebaasi skeemi keerukuse lihtsustamiseks,
---mitte IT-inimesele
---piiratud ligipääs andmetele, ei näe kõiki veerge
+-- milleks vaja:
+-- saab kasutada andmebaasi skeemi keerukuse lihtsutamiseks,
+-- mitte IT-inimesele
+-- piiratud ligipääs andmetele, ei näe kõiki veerge
 
---teeme view, kus näeb ainult IT-töötajaid
---view nimi on vITEmplohyeeInDepartment
-create view vITEmployeeInDepartment
+
+-- teeme view, kus näeb ainult IT-töötajaid
+-- view nimi on vITEmployeesInDepartment
+create view vITEmployeesInDepartment
 as
-select FirstName, Salary, GenderId, DepartmentName
+select FirstName, Salary, Gender, DepartmentName
 from Employees
 join Department
-on Employees.DepartmentId = Department.id
-where DepartmentName = 'IT'
+on Employees.DepartmentId = Department.Id
+where Department.DepartmentName = 'IT'
 
-select * from vITEmployeeInDepartment
+select * from vITEmployeesInDepartment
 
 --veeru taseme turvalisus
 --peale selecti määratled veergude näitamise ära
 create view vEmployeeInDepartmentSalaryNoShow
 as
-select FirstName, GenderId, DepartmentName
+select FirstName, Gender, DepartmentName
 from Employees
 join Department
-on Employees.DepartmentId = Department.id
+on Employees.DepartmentId = Department.Id
 
 select * from vEmployeeInDepartmentSalaryNoShow
 
---Saab kasutada esitlemaks koondandmeid ja üksikasjalike andmeid
---view, mis tagstab summeeritud andmeid
 
+--saab kasutada esitlemaks koondandmeid ja üksikasjalike andmeid
+--view, mis tagastab summeeritud andmeid
 create view vEmployeesCountByDepartment
 as
-select DepartmentName, count(Employees.id) as TotalEmployees
+select DepartmentName, count(Employees.Id) as TotalEmployees
 from Employees
 join Department
-on Employees.DepartmentId = Department.id
+on Employees.DepartmentId = Department.Id
 group by DepartmentName
 
 select * from vEmployeesCountByDepartment
@@ -1487,28 +1522,28 @@ alter view vEmployeesCountByDepartment
 --kustutamine
 drop view vEmployeesCountByDepartment
 
---kasutae view-d andmete uuendamiseks
+--kasutame view-d andmete uuendamiseks
 create view vEmployeesDataExceptSalary
-as 
-select id, FirstName, GenderId, DepartmentId
+as
+select Id, FirstName, Gender, DepartmentId
 from Employees
 
----muutke Id 2 olev rida ja uus eesnimi on Tom
+--muutke Id 2 olev rida ja uus eesnimi on Tom
 update vEmployeesDataExceptSalary
-set FirstName = 'Tom' where id = 2
+set FirstName = 'Pam' where Id = 2
 
-select * from vEmpoloyeesDataExceptSalary
+select * from vEmployeesDataExceptSalary
 
---kustudame ja sisestame andmed
-delete from vEmployeesDataExceptSalary where id = 2
-insert into vEmployeesDataExceptSalary (id, GenderId, DepartmentId, FirstName)
+--kustutame ja sisestame andmeid
+delete from vEmployeesDataExceptSalary where Id = 2
+insert into vEmployeesDataExceptSalary (Id, Gender, DepartmentId, FirstName)
 values(2, 'Female', 2, 'Pam')
 
---indekseeritud view
---MS SQL-s on indekseeritud view nime all ja 
---Oracle-s materjaliseeritud view
+--- indekseeritud view
+-- MS SQL-s on indekseeritud view nime all ja 
+-- Oracle-s materjaliseeritud view
 
-create table Product 
+create table Product
 (
 Id int primary key,
 Name nvarchar(20),
@@ -1544,9 +1579,9 @@ insert into ProductSales values
 create view vTotalSalesByProduct
 with schemabinding
 as
-select Name,
+select Name, 
 sum(isnull((QuantitySold * UnitPrice), 0)) as TotalSales,
-count_big(*) as TotalTransactions
+COUNT_BIG(*) as TotalTransactions
 from dbo.ProductSales
 join dbo.Product
 on dbo.Product.Id = dbo.ProductSales.Id
@@ -1554,25 +1589,25 @@ group by Name
 
 select * from vTotalSalesByProduct
 
--- kui soovid luua indeksi view sisse, siis peab järgima teatud reeglid
--- 1. view tuleb luua koos schmebinding-ga
---2. kui lisafunktsioon select list viitab väljendile ja selle tulemuseks
--- võib olla NULL, siis asendusväärtus peaks olema täpsustatud.
---Antud juhul kasutasime ISNULL funktsiooni asendamaks NULL väärtust
+--- kui soovid luua indeksi view sisse, siis peab järgima teatud reegleid
+-- 1. view tuleb luua koos schemabinding-ga
+-- 2. kui lisafunktsioon select list viitab väljendile ja selle tulemuseks
+-- võib olla NULL, siis asendusväärtus peaks olema täpsustatud. 
+-- Antud juhul kasutasime ISNULL funktsiooni asendamaks NULL väärtust
 -- 3. kui GroupBy on täpsustatud, siis view select list peab
 -- sisaldama COUNT_BIG(*) väljendit
--- 4. Baastabelis peaksid view-d olema viidatud kaheosalise nimega
---e antud juhul dbo.Product ja dbo.ProductSales.
---mis erinevus on COUNT_BIG ja COUNT-i vahel?
--- Count_big tagastab bigit väärtuse, mis on suurem
+-- 4. Baastabelis peaksid view-d olema viidatud kahesosalie nimega
+-- e antud juhul dbo.Product ja dbo.ProductSales.
+-- mis erinevus on COUNT_BIG ja COUNT-i vahel?
+-- Count_big tagastab bigint väärtuse, mis on suurem
 
-create unique clustered index UIX_cTotalSalesByProduct_Name
+create unique clustered index UIX_vTotalSalesByProduct_Name
 on vTotalSalesByProduct(Name)
---paneb view tähestikulisse järjestusse
+-- paneb selle view tähestikulisse järjestusse
 
 select * from vTotalSalesByProduct
 
---view piirang
+--- view piirangud
 create view vEmployeeDetails
 @Gender nvarchar(20)
 as
@@ -1582,23 +1617,26 @@ where Gender = @Gender
 
 --vaatesse ei saa panna parameetreid e antud juhul Gender
 
+--kui tahame parameetreid kasutada, siis peab kasutama funktsiooni
 create function fnEmployeeDetails(@Gender nvarchar(20))
 returns table
 as return
 (select Id, FirstName, Gender, DepartmentId
 from Employees where Gender = @Gender)
-
+--
 select * from fnEmployeeDetails('male')
 
--- order by kasutamine
-create view vEmployeeDetailSorted
+--- order by kasutamine
+create view vEmployeeDetailsSorted
 as
 select Id, FirstName, Gender, DepartmentId
 from Employees
 order by Id
+--order by-d ei saa kasutada view sees
 
 --temp table kasutamine
-create table ##TestTempTable(Id int, FirstName nvarchar(20), Gender nvarchar(10))
+create table ##TestTempTable
+(Id int, FirstName nvarchar(20), Gender nvarchar(10))
 
 insert into ##TestTempTable values
 (101, 'Martin', 'Male'),
@@ -1606,43 +1644,41 @@ insert into ##TestTempTable values
 (103, 'Pam', 'Female'),
 (104, 'James', 'Male')
 
-drop table ##TestTempTable
-
---tehke view, mis kasutab ##TestTempTable-it
+--tehke view, mis kasutab ##TestTempTable
+--view nimi on vOnTempTable
 create view vOnTempTable
 as
 select Id, FirstName, Gender
-from ##TempTestTable
---temp table-s ei saa kasutada view-d
+from ##TestTempTable
+--temp tabel-s ei saa kasutada view-d
 
---Triggerid
+-- Triggerid
 
---DML trigger
---Kokku kolme tüüpi: DML, DDL ja LOGON
+-- DML trigger
+--- kokku on kolme tüüpi: DML, DDL ja LOGON
 
---Trigger on stored procedure eriliik, mis automaatselt käivitud,
---kui mingi tegevus 
---peaks andmebaasis aset leidma
+--- trigger on stored procedure eriliik, mis automaatselt käivitub, 
+--- kui mingi tegevus 
+--- peaks andmebaasis aset leidma
 
---DML - data manipulation language
---DML-i põhilised käsklused: insert, update ja delete
+--- DML - data manipulation language
+--- DML-i põhilised käsklused: insert, update ja delete
 
---DML triggereid saab klassifitseerida kahte tüüpi:
---1. After trigger (kutsutakse ka FOR triggeriks)
---2. Instead of trigger (selmet trigger e selle asemel trigger)
+-- DML triggereid saab klassifitseerida  kahte tüüpi:
+-- 1. After trigger (kutsutakse ka FOR triggeriks)
+-- 2. Instead of trigger (selmet trigger e selle asemel trigger)
 
---after trigger käivitub peale sündmust, kui kuskil on 
--- tehtud insert, update ja delete
-
+--- after trigger käivitub peale sündmust, kui kuskil on 
+--- tehtud insert, update ja delete
 
 create table EmployeeAudit
 (
 Id int identity(1,1) primary key,
 AuditData nvarchar(1000)
 )
---peale iga töötaja sisestamist tahame teada saada töötaja Id-d
---päeva ning aega(millal sisestati)
---lõik andmed tulevad EmployeeAudit tabelisse
+-- peale iga töötaja sisestamist tahame teada saada töötaja Id-d, 
+-- päeva ning aega(millal sisestati)
+-- kõik andmed tulevad EmployeeAudit tabelisse
 
 create trigger trEmployeeForInsert
 on Employees
@@ -1651,17 +1687,16 @@ as begin
 declare @Id int
 select @Id = Id from inserted
 insert into EmployeeAudit
-values ('New employee with Id = ' + cast(@Id as nvarchar(5)) + ' is added at '
-+ cast(getdate() as nvarchar(20)))
+values ('New employee with Id = ' + cast(@Id as nvarchar(5)) + ' is added at ' +
+cast(getdate() as nvarchar(20)))
 end
 
 select * from Employees
 insert into Employees values
-(11, 'Bob', 'Blob', 'Bomb', 'Male', 3000, 1, 3, 'bob@bob.com')
+(11,'Bob', 'Blob', 'Bomb', 'Male', 3000, 1, 3, 'bob@bob.com')
 
 select * from EmployeeAudit
 
---delete trigger
 create trigger trEmployeeForDelete
 on Employees
 for delete
@@ -1678,7 +1713,7 @@ delete from Employees where Id = 11
 
 select * from EmployeeAudit
 
--- update trigger 
+--- update trigger
 create trigger trEmployeeForUpdate
 on Employees
 for update
@@ -1762,11 +1797,16 @@ as begin
 	delete from #TempTable where Id = @Id
 	end
 end
+------
 
-update Employee set FirstName = 'test123', Salary = 3999, MiddleName = 'test456'
+update Employees set FirstName = 'test1256', Salary = 3945, MiddleName = 'test987'
 where Id = 10
 
-create Table Employee
+select * from Employees
+select * from EmployeeAudit
+
+--instead of trigger
+create table Employee
 (
 Id int primary key,
 Name nvarchar(30),
@@ -1783,27 +1823,26 @@ DepartmentName nvarchar(20)
 
 select * from Employee
 
-insert into Employee values
-(1, 'John', 'Male', 3),
-(2, 'Mike', 'Male', 2),
-(3, 'Pam', 'Female', 1),
-(4, 'Todd', 'Male', 4),
-(5, 'Sara', 'Female', 1),
-(6, 'Ben', 'Male', 3)
+insert into Employee values(1, 'John', 'Male', 3)
+insert into Employee values(2, 'Mike', 'Male', 2)
+insert into Employee values(3, 'Pam', 'Female', 1)
+insert into Employee values(4, 'Todd', 'Male', 4)
+insert into Employee values(5, 'Sara', 'Female', 1)
+insert into Employee values(6, 'Ben', 'Male', 3)
 
---instead of triggeri eripära seisneb selles, et kasutab view-d
+--instead oftriggeri eripära seisneb selles, et kasutab view-d
 create view vEmployeeDetails
 as
 select Employee.Id, Name, Gender, DepartmentName
 from Employee
 join Department
-on Employee.DepartmentId = Department.id
+on Employee.DepartmentId = Department.Id
 
 select * from vEmployeeDetails
 
 insert into vEmployeeDetails values(7, 'Valarie', 'Female', 'IT')
 --tuleb veateade
---nüüd vaatame, et kuidas saab instead of triggeriga seda probleemi laendada
+--nüüd vaatame, et kuidas saab instead of triggeriga seda probleemi laehndada
 
 create trigger tr_vEmployeeDetails_InsteadOfInsert
 on vEmployeeDetails
@@ -1811,7 +1850,7 @@ instead of insert
 as begin
 	declare @DeptId int
 
-	select @DeptId = dbo.Department.id
+	select @DeptId = dbo.Department.Id
 	from Department
 	join inserted
 	on inserted.DepartmentName = Department.DepartmentName
@@ -1827,20 +1866,21 @@ as begin
 	from inserted
 end
 
---raiserror funktsioon
---selle eesmärk on tuua välja veateade, kui DepartmentName veerus ei ole väärtust
---ja ei klapi uue sisestatud väärtusega.
---Esimene on parameeter ja veateade sisu, teine on veataseme nr (nr 16 tähendab üldiseid)
---kolmas on olek
+--- raiserror funktsioon
+-- selle eesmärk on tuua välja veateade, kui DepartmentName veerus ei ole väärtust
+-- ja ei klapi uue sisestatud väärtusega. 
+-- Esimene on parameeter ja veateate sisu, teine on veataseme nr (nr 16 tähendab üldiseid vigu),
+-- kolmas on olek
 
 delete from Employee where Id = 7
 
 --kasutada update juures viewd nimega vEmployeeDetails
 --nimi on tal Johny ja osakonnanimi IT ning Id on tal 1
+
 update vEmployeeDetails
 set Name = 'Johny', DepartmentName = 'IT'
 where Id = 1
--- ei saa uuendada andmeid kuna mitu tablelit on sellest mõjutatud
+--ei saa uuendada andmeid kuna mitu tabelit on sellest mõjutatud
 
 update vEmployeeDetails
 set DepartmentName = 'IT'
@@ -1857,6 +1897,7 @@ as begin
 	if(Update(Id))
 	begin
 		raiserror('Id cannot be changed', 16, 1)
+		return
 	end
 
 	if(update(DepartmentName))
@@ -1896,35 +1937,36 @@ as begin
 	end
 end
 
---Tehke tavaline update kus on Id 1, nimeks John123, Gender male ja deptId 3.
 
-update Employee
-set Name = 'John123', Gender = 'Male', DepartmentId = 3
+--tehke tavaline update kus on Id 1, nimeks John123, Gender male ja deptId 3.
+update Employee set Name = 'John123', Gender = 'Male', DepartmentId = 3
 where Id = 1
 
-select * from Employee
+select * from vEmployeeDetails
 
 --teha view, mis kasutab join ja tabelid on Employee ja Department
 --selectis kasutame veerge DeptId, DeptName ja siis loendab ridade arvu tabelis
---lõpus grupidab ära DeptName ja DeptId järgi
+--l]pus grupidab ära DeptName ja DeptId järgi
 create view vEmployeeCount
-as
-select DepartmentId, location, DepartmentName, count(*) as TotalEmployees
-from employee
-join Department 
-on Employees.DepartmentId = Department.Id
-group by DepartmentName, DepartmentId, Location
-
---näitab ära osakonnad, kus on töötajaid rohkem, kui 2 tk
-select DepartmentName, TotalEmployees from vEmployeeCount
-where TotalEmployees > 2
-
---kasutame temp tableit
-select DepartmentName, DepartmentId, count(*) as TotalEmployees
-into #TempEmployeeCount
-from Employees
+as 
+select DepartmentId, Location, DepartmentName, count(*) as TotalEmployees
+from Employee
 join Department
 on Employee.DepartmentId = Department.Id
+group by DepartmentName, DepartmentId, Location
+
+select * from vEmployeeCount
+
+--näitab ära osakonnad, kus on töötajaid rohkem või võrdne, kui 2 tk
+select DepartmentName, TotalEmployees from vEmployeeCount
+where TotalEmployees >= 2
+
+--kasutame temp tabelit
+select DepartmentName, DepartmentId, count(*) as TotalEmployees
+into #TempEmployeeCount
+from Employee
+join Department
+on Employee. DepartmentId = Department.Id
 group by DepartmentName, DepartmentId
 
 select * from #TempEmployeeCount
@@ -1934,8 +1976,8 @@ select DepartmentName, TotalEmployees
 from #TempEmployeeCount
 where TotalEmployees >= 2
 
--- kui kustutad InsteadOfDelete triggeri vEmployeeDetailsi alt
---, siis saab veateade läbi view kustutamisega
+--- kui kustutad InsteadofDelete triggeri vEmployeeDetailsi alt
+--- , siis saab veateate l'bi view kustutamisega
 
 create trigger trEmployeeDetails_InsteadOfDelete
 on vEmployeeDetails
@@ -1947,7 +1989,7 @@ join deleted
 on Employee.Id = deleted.Id
 end
 
-delete from vEmployeeDetails where Id = 2
+delete from vEmployeeDetails where Id = 3
 
 --- CTE e common table expression
 
@@ -1955,81 +1997,87 @@ insert into Employee values(2, 'Mike', 'Male', 2)
 
 with EmployeeCount(DepartmentName, DepartmentId, TotalEmployees)
 as
-	(
+ (
 	select DepartmentName, DepartmentId, count(*) as TotalEmployees
-	--peate tegema join päring
-	from Employees
+	from Employee
 	join Department
-	on Employee. DepartmentId = DepartmentName
-	group by DepartmentName, DepartmentId
-	)
-	--näitab ära töötaja, kus >= töötajat
-	select DepartmentName, TotalEmployee
-	from EmployeeCount
-	where TotalEmployees >= 2
+	on Employee.DepartmentId = Department.Id
+	group by DepartmentName, DepartmentId 
+ )
+--n'itab ära töötajad, kus >= 2 töötajat
+select DepartmentName, TotalEmployees 
+from EmployeeCount
+where TotalEmployees >= 2
 
-	--CTE-d võiva sarnaneda temp tabeliga
-	--sarnane päritud tabelile ja ei ole salvestatud objektina
-	--ning kestab päringu ulatuses
+--CTE-d võiva sarnaneda temp tabeliga
+--sarnane päritud tabelile ja ei ole salvestatud objektina
+--ning kestab päringu ulatuses
 
-	--päringud tabel
-	select DepartmentName, TotalEmployees
-	from 
-	(
-		select DepartmentName, DepartmentId, count(*) as TotalEmployees
-		from Employee
-		join Department
-		on Employee.DepartmentName = Department.Id
-		group by DepartmentName, DepartmentId
-	)
-	as EmployeeCount
-	where TotalEmployees >= 2
+--päritud tabel
+select DepartmentName, TotalEmployees
+from
+(
+	select DepartmentName, DepartmentId, count(*) as TotalEmployees
+	from Employee
+	join Department
+	on Employee.DepartmentId = Department.Id
+	group by DepartmentName, DepartmentId 
+)
+as EmployeeCount
+where TotalEmployees >= 2
 
-	-- mitu CTE-d järjest
-	with EmployeeCountBy_Payroll_It_Dept(DepartmentName, Total)
-	as
-	(
-		select DepartmentName, count(Employee.Id) as TotalEmployees
-		from Employee
-		join Department
-		on Employee.DepartmentId = Department.Id
-		where DepartmentName in('Payroll', 'It')
-		group by DepartmentName
-	),
-
-	with EmployeeCountBy_HR_Admin_Dept(DepartmentName, Total)
-	as
-	(
-		select DepartmentName, count(Employee.Id) as TotalEmployees
-		from Employee
-		join Department
-		on Employee.DepartmentId = Department.Id
-		group by DepartmentName
-	),
---kui on kaks CTE-d, siis 
-select * from EmployeeCountBy_Payroll_It_Dept
+--- mitu CTE-d järjest
+with EmployeeCountBy_Payroll_IT_Dept(DepartmentName, Total)
+as
+(
+	select DepartmentName, count(Employee.Id) as TotalEmployees
+	from Employee
+	join Department
+	on Employee.DepartmentId = Department.Id
+	where DepartmentName in('Payroll', 'IT')
+	group by DepartmentName
+), 
+-- peale koma panemist saad uue CTE juurde kirjutada
+EmployeeCountBy_HR_Admin_Dept(DepartmentName, Total)
+as
+(
+	select DepartmentName, count(Employee.Id) as TotalEmployees
+	from Employee
+	join Department
+	on Employee.DepartmentId = Department.Id
+	group by DepartmentName
+)
+--kui on kaks CTE-d, siis unioni abil ühendab päringud
+select * from EmployeeCountBy_Payroll_IT_Dept
 union
 select * from EmployeeCountBy_HR_Admin_Dept
 
+---Parem loetavus: CTE-d jagavad keerulised päringud väiksemateks 
+---loogilisteks osadeks. Selle asemel, et kasutada sügavalt 
+---pesastatud alampäringuid, defineerid sa sammud WITH-klausli 
+---abil päringu alguses.
 
---Parem loetavus: CTE-d jagavad keerulised päringud väiksemateks
---loogilisteks osadeks. Selle asemel, et kasutada sügavalt
---pesastatud alampäringuid, defineerid sa sammud WITH-klausli
---abil päringu alguses
+---Koodi taaskasutatavus: Saad defineerida CTE üks kord ja 
+---viidata sellele sama päringu piires korduvalt. See 
+---hoiab koodi puhtana.
 
---Koodi taaskasutatavus: Saad defineerida CTE üks kord ja 
---viidata sellele sama päringu piires korduvalt. See
---hoidab koodi puhtana
+---Rekursiivsus: See on CTE-de eriline omadus. Rekursiivne 
+---CTE saab viidata iseendale, mis on hädavajalik hierarhiliste 
+---andmete (nt organisatsiooni struktuur või puukujulised menüüd) 
+---töötlemiseks.
 
---Reklusiivsus: See on CTE-d eriline omadus. Reklusiivne 
---CTE saab viidata iseendale, mis on hädavajalik hierarhiliste
---andmete (nt organisatsiooni struktuur või puukujulised menüüd)
---töötlemiseks
+---Lihtsam testimine: Kuna iga osa on eraldi nimega plokk, 
+---on konkreetseid loogika osi lihtsam kontrollida ja 
+---veatuvastust teha.
 
---Lihtsam testimine: Kuna iga osa on eraldi nimega plokk,
+--- tund 10
+--- 12.05.26
 
+-- korduv CTE
+--- CTE, mis iseendale viitab, kutsutakse korduvaks CTE-ks
+--- kui tahad andmeid näidata hierarhiliselt
 
---tablei kusutamine
+--tabeli kustutamine
 drop table Employee
 
 create table Employee
@@ -2051,38 +2099,37 @@ insert into Employee values (7, 'James', 1)
 insert into Employee values (8, 'Sam', 5)
 insert into Employee values (9, 'Simon', 1)
 
--- üks võimalus on teha seda self joiniga 
+-- üks võimalus on teha seda self joiniga
 -- kuvada NULL veeru asemel Super Boss
 
 select Emp.Name as [Employee Name],
-ISNULL(Manager.Name, 'Super Boss') as [Manager Name]
+isnull(Manager.Name, 'Super Boss') as [Manager Name]
 from dbo.Employee Emp
 left join Employee Manager
 on Emp.ManagerId = Manager.EmployeeId
 
---kasutame CTE
-with EmployeeCTE(Id, Name, ManagerId, [Level])
+--kasutame CTE 
+with EmployeesCTE(EmployeeId, Name, ManagerId, [Level])
 as
 (
-	select Employee.EmployeeId, Name, ManagerId, 1
+	select EmployeeId, Name, ManagerId, 1
 	from Employee
 	where ManagerId is null
 
 	union all
 
 	select Employee.EmployeeId, Employee.Name,
-	Employee.ManagerId, EmployeeCTE.[Level] + 1
+	Employee.ManagerId, EmployeesCTE.[Level] + 1
 	from Employee
-	join EmployeeCTE
-	on Employee.ManagerId = EmployeeCTE.Id
+	join EmployeesCTE
+	on Employee.ManagerId = EmployeesCTE.EmployeeId
 )
-
 select EmpCTE.Name as Employee,
-ISNULL(MgrCTE.Name, 'Super Boss') as [Manager Name],
+isnull(MgrCTE.Name, 'Super Boss') as [Manager Name],
 EmpCTE.[Level]
-from EmployeeCTE EmpCTE
-left join EmployeeCTE MgrCTE
-on EmpCTE.ManagerId = MgrCTE.Id
+from EmployeesCTE EmpCTE
+left join EmployeesCTE MgrCTE
+on EmpCTE.ManagerId = MgrCTE.EmployeeId
 
 -- PIVOT
 create table ProductSales
@@ -2092,76 +2139,57 @@ create table ProductSales
 	SalesAmount int
 )
 
-insert into ProductSales values ('Tom', 'UK', 200)
-insert into ProductSales values ('John', 'US', 180)
-insert into ProductSales values ('John', 'UK', 260)
-insert into ProductSales values ('David', 'India', 450)
-insert into ProductSales values ('Tom', 'India', 350)
-insert into ProductSales values ('David', 'US', 200)
-insert into ProductSales values ('Tom', 'US', 130)
-insert into ProductSales values ('John', 'India', 540)
-insert into ProductSales values ('John', 'UK', 120)
-insert into ProductSales values ('David', 'UK', 220)
-insert into ProductSales values ('John', 'UK', 220)
-insert into ProductSales values ('David', 'US', 320)
-insert into ProductSales values ('Tom', 'US', 340)
-insert into ProductSales values ('Tom', 'UK', 660)
-insert into ProductSales values ('John', 'India', 430)
-insert into ProductSales values ('David', 'India', 230)
-insert into ProductSales values ('David', 'India', 280)
-insert into ProductSales values ('Tom', 'UK', 480)
-insert into ProductSales values ('John', 'UK', 360)
-insert into ProductSales values ('David', 'UK', 140)
+select * from ProductSales
 
 select SalesCountry, SalesAgent, sum(SalesAmount) as Total
 from ProductSales
 group by SalesCountry, SalesAgent
 order by SalesCountry, SalesAgent
 
-
--- nüüd tehke päring kus kasutate PIVOT
+-- nüüd tehke päring, kus kasutate pivot
 select SalesAgent, India, US, UK
 from ProductSales
 pivot
 (
 	sum(SalesAmount) for SalesCountry in ([India], [US], [UK])
-) as PivotTable
+)
+as PivotTable
 
--- pivot kasutamine võimaldab meil ridu muuta veergudeks
--- ja teha andmete koondamist.
+--- pivot kasutamine võimaldab meil ridu muuta veergudeks 
+--- ja teha andmete koondamist
 
---lisada veerg nimega Id int primary key
-
+--- lisada veerg nimega Id int primary key
 alter table ProductSales
-add Id int identity(1, 1) primary key
+add Id int identity(1,1) primary key
 
--- nüüd kasutame sama käsklust mis enne
+-- nüü kasutama sama käsklust, mis enne
 select SalesAgent, India, US, UK
 from ProductSales
 pivot
 (
 	sum(SalesAmount) for SalesCountry in ([India], [US], [UK])
-) as PivotTable
+)
+as PivotTable
 
--- nüüd on veerg Id olemas, aga see ei mõjuta pivotit, kuna me ei kasuta
--- võrreldes eelmise päringuga, tulemus teistsugune
+--- nüüd on veerg Id olemas, aga see ei mõjuta pivotit, kuna me ei kasuta seda veergu pivotis
+--- võrreldes eelmise päringuga, tulemus teistsugune
 select SalesAgent, India, US, UK
 from 
 (
 	select SalesAgent, SalesCountry, SalesAmount from ProductSales
 )
 as SourceTable
-pivot
+pivot 
 (
 	sum(SalesAmount) for SalesCountry in (India, US, UK)
 )
 as PivotTable
 
--- transaction
+-- tranasactions
 
 -- transaction on SQL-i käskluste kogum,
 -- mis täidetakse ühtse tööüksusena.
---kontrollib vigu. Kui on viga, siis taastab algse oleku.
+-- kontrollib vigu. Kui on viga, siis taastab algse oleku
 
 create table MailingAddress
 (
@@ -2173,6 +2201,9 @@ create table MailingAddress
 	PostalCode nvarchar(20)
 )
 
+insert into MailingAddress
+values (1, 101, '#10', 'King Street', 'London', 'CR27DW')
+
 create table PhysicalAddress
 (
 	Id int not null primary key,
@@ -2183,34 +2214,32 @@ create table PhysicalAddress
 	PostalCode nvarchar(20)
 )
 
-insert into PhysicalAddress 
-values (1, 101, '#10', 'King Street', 'London', 'CR27DW')
+insert into PhysicalAddress
+values (1, 101, '#10', 'King Street', 'Londoon', 'CR27DW')
 
-insert into MailingAddress 
-values (1, 101, '#10', 'King Street', 'London', 'CR27DW')
 
-create proc spUpdateAddress
+alter proc spUpdateAddress
 as begin
 	begin try
 		begin transaction
 			update MailingAddress set City = 'LONDON'
 			where MailingAddress.Id = 1 and EmployeeNumber = 101
 
-			update MailingAddress set City = 'LONDON'
-			where MailingAddress.Id = 1 and EmployeeNumber = 101
+			update PhysicalAddress set City = 'LONDON'
+			where PhysicalAddress.Id = 1 and EmployeeNumber = 101
 		commit transaction
 	end try
 	begin catch
 		rollback tran
 	end catch
 end
-
+----
 spUpdateAddress
 
 select * from MailingAddress
 select * from PhysicalAddress
 
--- kasutame sama sp-d, aga muudame sisu
+--kasutame sama sp-d, aga muudame sisu
 
 alter proc spUpdateAddress
 as begin
@@ -2219,8 +2248,8 @@ as begin
 			update MailingAddress set City = 'LONDON 12'
 			where MailingAddress.Id = 1 and EmployeeNumber = 101
 
-			update MailingAddress set City = 'LONDON LONDON'
-			where MailingAddress.Id = 1 and EmployeeNumber = 101
+			update PhysicalAddress set City = 'LONDON LONDON'
+			where PhysicalAddress.Id = 1 and EmployeeNumber = 101
 		commit transaction
 	end try
 	begin catch
@@ -2228,67 +2257,72 @@ as begin
 	end catch
 end
 
+----
 spUpdateAddress
 
 select * from MailingAddress
 select * from PhysicalAddress
 
+
 truncate table MailingAddress
 truncate table PhysicalAddress
 
---juhul kui teine ei lähe läbi,
---siis 
+---juhul kui teine uuendus ei lähe läbi, 
+---siis esimene uuendus ei lähe läbi, kuna meil on transaction sees
 
--- transaction ACID test
+--- transaction ACID test
 
 -- edukas transaction peab läbima ACID testi:
--- A - atomic e aatomilkus
+-- A - atomic e aatomlikus
 -- C - consistent e järjepidevus
--- I - isolated e isoleeritud
+-- I - isolated e isoleeritus
 -- D - durable e vastupidav
 
 --- Atomic - kõik tehingud transactionis on kas edukalt täidetud või need 
---lükatakse tagasi. Nt, mõlemad käsud peaksid alati õnnestuma. Andmebaas
---teeb sellisel juhul: 
+-- lükatakse tagasi. Nt, mõlemad käsud peaksid alati õnnesutma. Andmebaas 
+-- teeb sellisel juhul: võtab esimese update tagasi ja veeretab selle algasendisse
+-- e taastab algsed andmed
 
---- Consistent - kõik transactionid puudutavad andmed jäetakse loogiliselt
---järjepidevasse olekusse. Nt, kui laos saadaval olevaid esemete hulka
+--- Consistent - kõik transactioni puudutavad andmed jäetakse loogiliselt 
+-- järjepidevasse olekusse. Nt, kui laos saadaval olevaid esemete hulka 
 -- vähendatakse, siis tabelis peab olema vastav kanne. Inventuur ei saa
 -- lihtsalt kaduda
 
 --- Isolated - transaction peab andmeid mõjutama, sekkumata teistesse
 -- samaaegsetesse transactionitesse. See takistab andmete muutmist, mis 
--- põhinevad sidumata tabelitel. Nt, muudatused kirjas, mis hiljem tagasi
---muudetakse. Enamik DB-d kasutab tehingute isoleerimise säilitamiseks
+-- põhinevad sidumata tabelitel. Nt, muudatused kirjas, mis hiljem tagasi 
+-- muudetakse. Enamik DB-d kasutab tehingute isoleerimise säilitamiseks 
 -- lukustamist
 
 --- Durable - kui muudatus on tehtud, siis see on püsiv. Kui süsteemiviga või
+-- voolukatkestus ilmneb enne käskude komplekti valmimist, siis tühistatkse need 
+-- käsud ja andmed taastakse algsesse olekusse. Taastamine toimub peale 
+-- süsteemi taaskäivitamist.
 
+--subqueries
+--tabel tühjaks
 truncate table Product
 truncate table ProductSales
 
-drop table Product
-drop table ProductSales
-
-create table Product 
+create table Product
 (
 Id int identity primary key,
 Name nvarchar(50),
 Description nvarchar(250)
 )
 
-create table ProductSales 
+create table ProductSales
 (
-Id int identity primary key,
+Id int primary key identity,
 ProductId int foreign key references Product(Id),
 UnitPrice int,
 QuantitySold int
 )
 
-insert into Product values
-('TV', '52 inch black color TV'),
-('LapTop', 'Very thin silver color laptop'),
-('Desktop', 'HP hgh performance desktop')
+insert into Product values 
+(1, 'TV', '52 inch black color TV'),
+(2, 'Laptop', 'Very thin silver color laptop'),
+(3, 'Desktop', 'HP high performance desktop')
 
 insert into ProductSales values
 (3, 450, 5),
@@ -2299,13 +2333,13 @@ insert into ProductSales values
 select * from Product
 select * from ProductSales
 
---kirjutame päringu, mis annab infot müümata toodetest
+---kirjutame päringu, mis annab infot müümata toodetest
 select Id, Name, Description
 from Product
 where Id not in (select distinct ProductId from ProductSales)
 
---enamus juhtudel saab asendada subquerit JOIN.ga
---teeme sama päringu, aga JOIN-iga
+--enamus juhtudel saab asendada subquerit JOIN-ga
+--teeme sama päringut, aga JOIN-iga
 select Product.Id, Name, Description
 from Product
 left join ProductSales
@@ -2313,7 +2347,7 @@ on Product.Id = ProductSales.ProductId
 where ProductSales.ProductId is null
 
 -- teeme subqueri, kus kasutame select-i. Kirjutame päringu, kus
--- saame teada NAME ja TotalQuantity veeru andmeid.
+-- saame teada NAME ja TotalQuantity veeru andemeid
 select Name,
 (select sum(QuantitySold) from ProductSales where ProductId = Product.Id) as
 TotalQuantity
@@ -2324,10 +2358,281 @@ order by Name
 select Name, sum(QuantitySold) as TotalQuantity
 from Product
 left join ProductSales
-on Product.Id = ProductSales.ProductId
+on Product.Id = ProductSales.Productid
 group by Name
 order by Name
 
 --- subqueryt saab subquery sisse panna
--- subquery on alati sulgudes ja neid nimetatakse sisemiseks päringuteks
+-- subquerid on alati sulgudes ja neid nimetatakse sisemisteks päringuteks
+
+--- rida 2429
+--- tund 11
+--- 19.05.26
+
+-- rohkete andmetega testimise tabel
+
+truncate table dbo.Product
+truncate table dbo.ProductSales
+
+create table Product
+(
+Id int identity primary key,
+Name nvarchar(50),
+Description nvarchar(250)
+)
+
+create table ProductSales
+(
+Id int primary key identity,
+ProductId int foreign key references Product(Id),
+UnitPrice int,
+QuantitySold int
+)
+
+--- sisestame näidisandmed Product tabelisse
+declare @Id int 
+set @Id = 1
+while(@Id <= 3000000)
+begin
+	insert into Product values('Product' + cast (@Id as nvarchar(10)),
+	'Description for product ' + cast (@Id as nvarchar(10)))
+
+	print @Id
+	set @Id = @Id + 1
+end
+
+declare @RandomProductId int
+declare @RandomUnitPrice int
+declare @RandomQuantitySold int
+
+-- ProductId
+declare @LowerLimitForProductId int
+declare @UpperLimitForProductId int
+
+set @LowerLimitForProductId = 1
+set @UpperLimitForProductId = 3000
+
+--unitPrice
+declare @LowerLimitForUnitPrice int
+declare @UpperLimitForUnitPrice int
+
+set @LowerLimitForUnitPrice = 1
+set @UpperLimitForProductId = 3000
+
+
+
+--QuantitySold
+declare @LowerLimitForQuantitySold int
+declare @UpperLimitForQuantitySold int
+
+set @LowerLimitForQuantitySold = 1
+set @UpperLimitForQuantitySold = 100
+
+declare @Counter int
+set @Counter = 1
+
+while(@Counter <= 900000)
+begin
+
+	set @RandomProductId = round(((@UpperLimitForProductId - 
+	@LowerLimitForProductId) * rand() + @LowerLimitForProductId), 0)
+
+	set @RandomUnitPrice = round(((@UpperLimitForUnitPrice - 
+	@LowerLimitForUnitPrice) * rand() + @LowerLimitForUnitPrice), 0)
+
+	set @RandomQuantitySold = round(((@UpperLimitForQuantitySold - 
+	@LowerLimitForQuantitySold) * rand() + @LowerLimitForQuantitySold), 0)
+
+	insert into ProductSales
+	values(@RandomProductId, @RandomUnitPrice, @RandomProductId)
+
+	print @Counter
+	set @Counter = @Counter + 1
+end
+
+
+select * from Product	
+select * from ProductSales
+
+-- võrdleme subquery ja joini jõudlust
+select Id, Name, Description
+from Product
+where Id in
+(
+select Product.Id from ProductSales
+)
+-- 3 miljonit rida 13 sekundiga
+
+-- teeme cache puhtaks, et uut päringut ei oleks kuskil vähemällu salvestatud
+checkpoint;
+go
+dbcc DropCleanBuffers; --puhastab päringu cache-i
+go
+dbcc FreeProcCache; --puhastab protseduuride cache-i
+go
+
+-- teha sama tabeliga, aga JOIN-iga
+select Product.Id, Name, Description
+from Product
+join ProductSales
+on Product.Id = ProductSales.ProductId
+-- 900000 rida 5 sekundiga
+
+select Id, Name, Description
+from Product
+where not exists
+(
+select * from ProductSales where ProductId = Product.Id
+)
+--- 2997000 ridu 15 sekundiga
+
+-- kasutame join-i
+--left join ja where ProductSales.ProductId is null
+select Product.Id, Name, Description
+from Product
+left join ProductSales
+on Product.Id = ProductSales.ProductId
+where ProductSales.ProductId is null
+--- 2997000 rida 15 sekundiga
+
+--CURSOR
+
+-- realatsiooniliste DB-de haldussüsteemid saavad väga hästi hakkama
+-- SETSS-ga. SETS lubab mitut päringut kombineerida üheks tulemuseks
+-- Sinna alla käivad UNION, INTERSECT ja EXCEPT.
+
+update ProductSales set UnitPrice = 50
+where ProductSales.ProductId = 101
+
+-- kui on vaja rea kuapa andmeid töödelda, siis kõige parem oleks kasutada 
+-- CURSOReid. Samas on need jõudlusele halvad ja võimalusel vältida.
+-- Soovitav oleks kasutada JOIN-i.
+
+-- Cursorid jagunevad omakorda neljaks:
+-- 1. Forward-only cursor e edasi-ainult - saab liikuda ainult edasi
+-- 2. Static cursor e staatiline - loob tulemuste komplekti, mis on staatiline
+-- 3. Dynamic cursor e dünaamiline - näitab kõiki muudatusi, mis on tehtud tulemuste komplektis
+-- 4. Keyset-driven cursor e võtmevektoriga - näitab kõiki muudatusi, mis on tehtud tulemuste komplektis, 
+-- välja arvatud uued read
+
+--- näide 
+declare @ProductId int
+--deklareerime cursori
+declare ProductIdCursor cursor for
+select ProductId from ProductSales
+-- open avaldusega täidab select avaldust
+-- ja sisestab tulemuse
+open ProductIdCursor
+
+fetch next from ProductIdCursor into @ProductId
+--- kui tulemuses on veel ridu, siis @@FETCH_STATUS on 0
+while(@@FETCH_STATUS = 0)
+begin
+	declare @ProductName nvarchar(50)
+	select @ProductName = Name from Product where Id = @ProductId
+
+	if (@ProductName = 'Product 164')
+	begin
+		update ProductSales set UnitPrice = 164
+		where ProductId = @ProductId
+	end
+
+	else if(@ProductName = 'Product 356')
+	begin
+		update ProductSales set UnitPrice = 356
+		where ProductId = @ProductId
+	end
+
+	else if(@ProductName = 'Product 2219')
+	begin
+		update ProductSales set UnitPrice = 2219
+		where ProductId = @ProductId
+	end
+	fetch next from ProductIdCursor into @ProductId
+end
+--vabastab rea seadistuse e suleb cursori
+close ProductIdCursor
+-- vabastab ressurssid, mis on seotud cursoriga
+deallocate ProductIdCursor
+
+select * from ProductSales
+
+--vaatame, kas read on uuendatud
+--kasutage join ja where
+select Name, UnitPrice
+from Product join
+ProductSales on Product.Id = ProductSales.ProductId
+where(Name = 'Product 164' or Name = 'Product 356' or Name = 'Product 2219')
+
+-- sama tulemusega päring, mis enne ´, aga kasutame Cursorit
+--tuleb kasutada case ja lihtsalt join-i
+update ProductSales 
+set UnitPrice = 
+	case 
+		when Product.Name = 'Product 164' then 164
+		when Product.Name = 'Product 356' then 356
+		when Product.Name = 'Product 2219' then 2219
+	end
+from ProductSales
+join Product
+on ProductSales.ProductId = Product.Id
+where(Product.Name = 'Product 164' or Product.Name = 'Product 356' or Product.Name = 'Product 2219')
+
+--tabelite info
+--nimekiri tablitest
+select * from sysobjects where xtype = 'S'
+
+select * from sys.tables
+--nimekiri tabelitest ja view-st
+select * from INFORMATION_SCHEMA.TABLES
+
+-- kui soovid erinevaid objektitüüpe vaadata, siis kasuta XTYPE süntaksit
+select distinct xtype from sysobjects
+
+-- IT - internal table
+-- P - stored procedure
+-- PK - primary key constraint
+-- S - system table
+-- SQ - service queue
+-- U - user table
+-- V - view
+
+-- annab teada, kas sellise nimega tabel on juba olemas
+if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Employee')
+begin
+	create table Employee
+	(
+	Id int primary key,
+	Name nvarchar(30),
+	ManagerId int
+	)
+		print 'Table created'
+	end
+	else
+	begin
+		print 'Table already exists'
+end
+
+-- saab kasutada ka sisseehitatud funktsiooni: OBJECT_ID()
+if OBJECT_ID('Employee') is null
+begin
+	print 'Table created'
+end
+else
+begin
+	print 'Table already exists'
+end
+
+--tahame Employee nimega tabeli ära kasutada ja siis uuesti luua
+--kasutame OBJECT_ID-d
+if OBJECT_ID('Employee') is not null
+begin
+	drop table Employee
+	print 'Table dropped'
+end
+else
+begin
+	print 'Table does not exist'
+end
+
 
